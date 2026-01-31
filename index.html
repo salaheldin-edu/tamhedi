@@ -184,10 +184,7 @@
     
 
 <header>
-  <div class="titles">
-    <h1>نظام عرض نتائج التلاميذ</h1>
-    <div class="sub">الدور التمهيدي للعام الدراسي/ 2025 – 2026</div>
-  </div>
+  
 </header>
 
 
@@ -200,6 +197,30 @@
     <h1>نظام عرض نتائج التلاميذ</h1>
     <div class="sub">الدور التمهيدي للعام الدراسي/ 2025 – 2026</div>
   </div>
+    
+/* لتوسيط العنوان والنص أسفل الشعار */
+.titles{
+  width: 100%;
+  text-align: center;       /* يوسّط النص */
+  display: flex;
+  flex-direction: column;   /* فوق بعض */
+  justify-content: center;
+  align-items: center;      /* يوسّط الحاوية نفسها */
+  margin-top: 12px;         /* مسافة بسيطة تحت الشعار */
+}
+
+.titles h1{
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.titles .sub{
+  margin-top: 6px;
+  font-size: 1rem;
+  color: var(--muted);
+}
+
     <!-- شريط علوي -->
     <div class="topbar">
       <div class="title">واجهة رسمية</div>
@@ -549,5 +570,6 @@ setScreen("home");
   </script>
 </body>
 </html>
+
 
 
