@@ -14,162 +14,213 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
-<style>
-:root{
-  --brand:#0d47a1;
-  --brand-600:#0b3d8f;
-  --accent:#c62828;
-  --ink:#1b1f23;
-  --muted:#5b6470;
-  --border:#e2e6ea;
-  --bg:#ffffff;
-  --card:#f8fafc;
-  --success:#1b5e20;
-}
+  <style>
+    :root{
+      --brand:#0d47a1;
+      --brand-600:#0b3d8f;
+      --accent:#c62828;
+      --ink:#1b1f23;
+      --muted:#5b6470;
+      --border:#e2e6ea;
+      --bg:#ffffff;
+      --card:#f8fafc;
+      --success:#1b5e20;
 
-html,body{height:100%;}
-body{
-  margin:0;
-  background:var(--bg);
-  color:var(--ink);
-  font-family:"Noto Naskh Arabic", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-  line-height:1.6;
-  overflow-x:hidden;
-}
+      /* ← تحكم بحجم بانر الشعار من هنا فقط */
+      --hero-logo-height: 230px;   /* غيّر القيمة لتكبير/تصغير الشعار */
+      --hero-logo-max: 300px;
+    }
 
-.container{
-  max-width:980px;
-  margin-inline:auto;
-  padding:24px 16px 48px;
-}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Noto Naskh Arabic", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      line-height:1.6;
+      overflow-x:hidden; /* منع تمرير أفقي على الموبايل */
+    }
 
-/* هيدر بدون شعار صغير */
-header{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:8px 0;
-  border-bottom:1px solid var(--border);
-  margin-bottom:12px;
-}
+    .container{
+      max-width:980px;
+      margin-inline:auto;
+      padding:24px 16px 48px;
+    }
 
-/* بانر الشعار */
-.hero-logo-wrap{
-  width:calc(100% + 32px);
-  margin-inline:-16px;
-  margin-top:8px;
-  margin-bottom:16px;
-  background:#fff;
-  border-bottom:1px solid var(--border);
-}
-.hero-logo{
-  width:100%;
-  height:230px;         /* ← غيّر هذا الرقم لتكبير/تصغير الشعار */
-  max-height:300px;
-  object-fit:contain;
-  background:#fff;
-  display:block;
-  padding:10px;
-}
+    /* هيدر مبسّط (لا يحتوي الشعار) */
+    header{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:8px 0;
+      border-bottom:1px solid var(--border);
+      margin-bottom:12px;
+    }
 
-/* العنوان تحت الشعار */
-.titles{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;     /* يوسّط أفقي */
-  justify-content:center; /* يوسّط عمودي */
-  text-align:center;      /* يوسّط النص */
-  margin-top:12px;
-}
-.titles h1{
-  margin:0;
-  font-size:1.8rem;
-  font-weight:700;
-}
-.titles .sub{
-  margin-top:6px;
-  font-size:1.05rem;
-  color:var(--muted);
-}
+    /* بانر الشعار كامل العرض في الرئيسية */
+    .hero-logo-wrap{
+      width:calc(100% + 32px);
+      margin-inline:-16px;
+      margin-top:8px;
+      margin-bottom:8px;
+      background:#fff;
+      border-bottom:1px solid var(--border);
+    }
+    .hero-logo{
+      width:100%;
+      height:var(--hero-logo-height);   /* ← هذا هو الارتفاع المتحكَّم به */
+      max-height:var(--hero-logo-max);
+      display:block;
+      object-fit:contain;               /* يحافظ على نسبة الشعار */
+      background:#fff;
+      padding:10px;                     /* مسافة داخلية بسيطة */
+    }
 
-/* بطاقات */
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:20px;
-  box-shadow:0 6px 20px rgba(13,71,161,0.05);
-}
-.card h2{ margin-top:0;font-size:1.2rem;color:var(--brand-600); }
+    /* العنوان/النص تحت الشعار (مطلوب يتوسّط تمامًا) */
+    .titles{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;     /* يوسّط أفقيًا */
+      justify-content:center; /* يوسّط عموديًا (لو احتجنا) */
+      text-align:center;      /* يوسّط النص */
+      margin-top:12px;        /* مسافة تحت الشعار */
+      margin-bottom:12px;
+    }
+    .titles h1{
+      margin:0;
+      font-size:1.8rem;
+      font-weight:700;
+      color:var(--brand);
+    }
+    .titles .sub{
+      margin-top:6px;
+      font-size:1.05rem;
+      color:var(--muted);
+    }
 
-/* أزرار */
-.btn{
-  appearance:none;border:none;border-radius:10px;
-  padding:10px 16px;font-weight:700;cursor:pointer;
-  background:var(--brand);color:#fff;
-  transition:transform .06s ease, box-shadow .2s ease;
-}
-.btn.secondary{
-  background:#ffffff;color:var(--brand);border:1px solid var(--brand);
-}
-.btn.success{background:var(--success);}
+    /* بطاقات */
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 6px 20px rgba(13,71,161,0.05);
+    }
+    .card h2{ margin-top:0;font-size:1.2rem;color:var(--brand-600); }
 
-/* الحقول */
-.field{
-  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-  margin:8px 0 16px;
-}
-.field input[type=text]{
-  flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:10px;
-  direction:ltr;text-align:left;
-}
+    /* أزرار */
+    .btn{
+      appearance:none;border:none;border-radius:10px;
+      padding:10px 16px;font-weight:700;cursor:pointer;
+      background:var(--brand);color:#fff;
+      transition:transform .06s ease, box-shadow .2s ease, background .2s ease;
+      box-shadow:0 4px 12px rgba(13,71,161,0.18);
+    }
+    .btn:hover{background:var(--brand-600);transform:translateY(-1px);}
+    .btn.secondary{ background:#ffffff;color:var(--brand);border:1px solid var(--brand);box-shadow:none; }
+    .btn.success{background:var(--success);}
 
-/* جداول الدرجات */
-table{
-  width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;
-  border:1px solid var(--border);
-}
-thead th{
-  background:#e8eefb;color:#0b3d8f;padding:10px;border-bottom:1px solid var(--border);
-}
-tbody td{ padding:10px;border-bottom:1px solid var(--border);text-align:center; }
-tfoot td{ background:#f3f6fb;font-weight:700;padding:12px;text-align:center; }
+    /* حقول الإدخال */
+    .field{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      margin:8px 0 16px;
+    }
+    .field label{min-width:140px;color:var(--muted)}
+    .field input[type="text"]{
+      flex:1 1 280px;
+      padding:10px 12px;border:1px solid var(--border);border-radius:10px;
+      font-size:1rem;direction:ltr;text-align:start;
+    }
+    .hint{color:var(--muted);font-size:0.9rem}
 
-/* شعار التصدير */
-.export-logo{
-  display:none;
-  max-width:280px;
-  margin:5px auto 12px;
-  object-fit:contain;
-}
+    /* أقسام/صفحات */
+    .screen{display:none;}
+    .screen.active{display:block;animation:fade .2s ease}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-/* تحسينات موبايل */
-@media (max-width:480px){
-  .hero-logo{height:170px;}
-  .titles h1{font-size:1.5rem;}
-}
-</style>
+    /* جدول الدرجات */
+    table{
+      width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;
+      border:1px solid var(--border);
+    }
+    thead th{
+      background:linear-gradient(180deg,#e9f0fb,#dbe7fb);
+      color:#0b3d8f;font-weight:700;padding:10px;border-bottom:1px solid var(--border);
+      text-align:center;
+    }
+    tbody td{ padding:10px;border-bottom:1px solid var(--border);text-align:center; }
+    tbody tr:last-child td{border-bottom:none;}
+    tfoot td{
+      background:#f3f6fb;font-weight:700;color:#0b3d8f;padding:12px;border-top:1px solid var(--border);text-align:center;
+    }
+
+    .result-title{
+      display:flex;flex-direction:column;gap:4px;margin:6px 0 14px;
+    }
+    .result-title .school{color:var(--muted);font-size:0.95rem}
+    .meta{ display:flex;gap:14px;flex-wrap:wrap;color:var(--ink);margin:6px 0 2px; }
+    .meta .tag{ background:#fff;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-weight:700; }
+
+    .not-found{
+      background:#fff7f7;border:1px solid #ffd0d0;color:#8b0000;border-radius:12px;padding:12px;margin:8px 0 0;
+    }
+
+    /* مساحة التقاط الصورة (نتيجة) */
+    #captureArea{
+      padding:18px;border:1px dashed var(--border);border-radius:12px;background:#ffffff;
+    }
+
+    /* شعار خاص بالصورة المصدّرة فقط: مخفي على الشاشة */
+    .export-logo{
+      display:none;                 /* مخفي أثناء العرض */
+      width:auto;
+      height:auto;                  /* بدون تمطيط */
+      max-width:280px;              /* سقف عرض مناسب حتى لا يغطي النص */
+      max-height:180px;             /* سقف ارتفاع اختياري */
+      margin:5px auto 12px;         /* تمركز أفقياً ومسافة تحت */
+      object-fit:contain;           /* يحافظ على النسبة */
+    }
+
+    .footer-note{
+      margin-top:10px;color:var(--muted);font-size:0.85rem;text-align:center;
+    }
+
+    /* شريط تنقّل علوي بسيط */
+    .topbar{
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+    }
+    .topbar .title{font-weight:700;color:var(--brand-600)}
+    .topbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    /* تحسينات موبايل */
+    @media (max-width: 480px){
+      .hero-logo{ height:170px; }
+      .titles h1{ font-size:1.5rem; }
+      .field label{min-width:auto;width:100%;}
+      .field input[type="text"]{flex:1 1 100%;}
+      .container{padding:16px 12px 32px;}
+      #captureArea{padding:12px;}
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    
-
-<header>
-  
-</header>
-
-
+    <header>
+      <!-- الهيدر هنا فقط للفاصل العلوي (لا شعار بداخله) -->
+    </header>
 
     <!-- بانر الشعار كامل العرض في الرئيسية -->
     <div class="hero-logo-wrap">
       <img id="heroLogo" class="hero-logo" src="" alt="الشعار الكامل" />
     </div>
- <div class="titles">
-    <h1>نظام عرض نتائج التلاميذ</h1>
-    <div class="sub">الدور التمهيدي للعام الدراسي/ 2025 – 2026</div>
-  </div>
+
+    <!-- العنوان والنص تحت الشعار (متمركز 100%) -->
+    <div class="titles">
+      <h1>نظام عرض نتائج التلاميذ</h1>
+      <div class="sub">الدور التمهيدي للعام الدراسي/ 2025 – 2026</div>
+    </div>
 
     <!-- شريط علوي -->
     <div class="topbar">
@@ -240,7 +291,7 @@ tfoot td{ background:#f3f6fb;font-weight:700;padding:12px;text-align:center; }
     <section id="templateScreen" class="screen" aria-label="شكل النتيجة">
       <div class="card">
         <h2>شكل النتيجة (مرجع التصميم)</h2>
-        <p class="hint">هذا عرض شكلي يوضّح هيئة النتيجة الرسمية قبل تعبئتها بالبيانات.</p>
+        <p class="hint">هذا عرض شكلي يوضّح الهيئة العامة قبل تعبئتها بالبيانات.</p>
         <div class="card" style="background:#fff">
           <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
             <div style="width:72px;height:72px;border:1px solid var(--border);border-radius:8px;background:#fafafa;display:grid;place-items:center;color:var(--muted)">الشعار</div>
@@ -277,12 +328,12 @@ tfoot td{ background:#f3f6fb;font-weight:700;padding:12px;text-align:center; }
 const CSV_FILE = "data.csv";
 
 // 2) الشعار: استخدم محلي لتفادي CORS عند الحفظ كصورة
-const USE_LOCAL_LOGO = true;               // تأكّد أنها true
-const LOCAL_LOGO_PATH = "logo.png";        // ← ضع اسم ملف الشعار المحلي هنا
-// (لا تحتاج تعديل السطر التالي طالما USE_LOCAL_LOGO = true)
+const USE_LOCAL_LOGO = true;               // إبقه true
+const LOCAL_LOGO_PATH = "logo.png";        // ← اسم ملف الشعار المحلي
+// (لا حاجة لتعديل التالي إن بقيت على الشعار المحلي)
 const REMOTE_LOGO_URL = "https://drive.google.com/uc?export=view&id=FILE_ID";
 
-// 3) خريطة أسماء الأعمدة في ملف CSV (عدّلها لتطابق ملفك حرفيًا)
+// 3) خريطة أسماء الأعمدة في ملف CSV (طابق ملفك حرفيًا)
 const COLS = {
   EXAM: "الرقم الامتحاني",
   NAME: "اسم التلميذ",
@@ -413,7 +464,7 @@ function downloadCanvasAsPNG(canvas, filename){
 
 /************ Search Logic ************/
 function findUniqueByExam(rows, exam){
-  // حصري وبدون تكرار: إذا تعدد — نأخذ أول سطر مطابق ونظهر تنبيه بسيط في الكونسول
+  // حصري وبدون تكرار: إذا تعدد — نأخذ أول سطر مطابق ونظهر تحذير بسيط
   const matches = rows.filter(r => normalizeExam(r[COLS.EXAM]) === exam);
   if(matches.length > 1){
     console.warn("تحذير: تكرر الرقم الامتحاني في أكثر من سجل. تم استخدام أول سطر مطابق.");
@@ -478,13 +529,12 @@ printBtn.addEventListener("click", async ()=>{
       prevDisplay = exportLogo.style.display;
       exportLogo.style.display = "block";
 
-      // تأكد من أن الصورة مُحمّلة بالكامل قبل الالتقاط
+      // تأكد من تحميل الصورة قبل الالتقاط
       await new Promise(resolve => {
         if (exportLogo.complete) return resolve();
         const onLoad = () => { exportLogo.removeEventListener('load', onLoad); resolve(); };
         exportLogo.addEventListener('load', onLoad);
-        // في حال كان src نفسه ولم يطلق load، نضيف مهلة قصيرة كاحتياط
-        setTimeout(resolve, 80);
+        setTimeout(resolve, 80); // احتياط لو كان cached
       });
     }
 
@@ -495,7 +545,7 @@ printBtn.addEventListener("click", async ()=>{
       useCORS: !USE_LOCAL_LOGO
     });
 
-    // 3) أعد إخفاء الشعار مباشرة بعد الالتقاط
+    // 3) أخفِ الشعار مجددًا
     if (exportLogo){
       exportLogo.style.display = prevDisplay || "none";
     }
@@ -505,10 +555,7 @@ printBtn.addEventListener("click", async ()=>{
     const exam = (elExam.textContent || "exam").replace(/[^\w-]/g,'');
     downloadCanvasAsPNG(canvas, `result_${exam}_${name}.png`);
   }catch(err){
-    // في حالة الخطأ، تأكد من إعادة الإخفاء
-    if (exportLogo){
-      exportLogo.style.display = "none";
-    }
+    if (exportLogo) exportLogo.style.display = "none";
     console.error(err);
     alert("تعذر إنشاء الصورة. تأكد من وجود الشعار محليًا (logo.png) والبيانات.");
   }
@@ -520,11 +567,3 @@ setScreen("home");
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
