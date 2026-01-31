@@ -26,7 +26,7 @@
       --card:#f8fafc;
       --success:#1b5e20;
 
-      /* ← تحكم بحجم بانر الشعار من هنا */
+      /* ← تحكم بحجم بانر الشعار في الرئيسية */
       --hero-logo-height: 600px;  /* كبّر/صغّر */
       --hero-logo-max: 600px;
     }
@@ -292,7 +292,7 @@
           <thead>
             <tr><th>المادة</th><th>الدرجة</th></tr>
           </thead>
-        <tbody id="gradesBody"><!-- يملأ ديناميكياً --></tbody>
+          <tbody id="gradesBody"><!-- يملأ ديناميكياً --></tbody>
           <tfoot>
             <tr>
               <td>النتيجـــــــــــة</td>
@@ -305,7 +305,7 @@
 
         <!-- نص إضافي يظهر فقط داخل الصورة المصدّرة (أسفل "الدور التمهيدي") -->
         <div id="exportExtra" class="export-extra">
-          هذه وثيقة للعرض فقط ولا تعتبر مستند رسمي - تصميم وتنفيذ المهندس امين محمود
+         هذه الوثيقة للعرض فقط ولا تعتبر وثيقة رسيمة - تصميم وتنفيذ المهندس امين محمود
         </div>
       </div>
 
@@ -438,7 +438,7 @@ function normalizeDigits(str){
 }
 
 function classifyGrade(val){
-  // المطلوب: 50+ => Pass (أخضر) ، أقل من 50 أو قيمة نصية => Fail (أحمر)
+  // 50+ => pass (أخضر)، أقل من 50 أو قيمة نصية => fail (أحمر)
   const s = String(val ?? "").trim();
   if (!s) return "fail"; // فارغة تُعد رسوب
   const num = parseFloat(normalizeDigits(s).replace(/[^\d.]/g, ""));
@@ -455,7 +455,7 @@ function buildTableRow(subjectLabel, gradeVal){
   tdGrade.classList.add("grade-cell");
   tdGrade.textContent = (gradeVal ?? "—");
 
-  // تلوين حسب القاعدة الجديدة
+  // تلوين حسب القاعدة المطلوبة
   const cls = classifyGrade(gradeVal);
   if (cls === "pass") tdGrade.classList.add("grade-pass");
   else tdGrade.classList.add("grade-fail");
@@ -478,8 +478,7 @@ function fillResultRow(row){
     gradesBody.appendChild(buildTableRow(sub.label, val));
   });
 
-  // النتيجة النهائية (نبقيها بدون تلوين بناءً على طلبك السابق؛
-  // إن رغبت بتلوينها بنفس القاعدة أخبرني)
+  // النتيجة النهائية (دون تلوين خاص)
   finalResult.textContent = row[COLS.FINAL] ?? "—";
 }
 
@@ -502,14 +501,33 @@ function normalizeExam(v){
   return d;
 }
 
-function downloadCanvasAsPNG(canvas, filename){
-  canvas.toBlob(function(blob){
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(link.href);
-  }, "image/png", 1);
+/** تنزيل Blob كملف */
+function downloadBlobAsFile(blob, filename){
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+/** تصغير Canvas إلى عرض أقصى (يحافظ على النسبة) */
+function downscaleCanvas(srcCanvas, maxWidth){
+  const w = srcCanvas.width;
+  const h = srcCanvas.height;
+  if (w <= maxWidth) return srcCanvas; // لا حاجة للتصغير
+
+  const scale = maxWidth / w;
+  const targetW = Math.round(w * scale);
+  const targetH = Math.round(h * scale);
+
+  const off = document.createElement("canvas");
+  off.width = targetW;
+  off.height = targetH;
+  const ctx = off.getContext("2d");
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(srcCanvas, 0, 0, targetW, targetH);
+  return off;
 }
 
 /************ Search Logic ************/
@@ -592,21 +610,29 @@ printBtn.addEventListener("click", async ()=>{
       exportExtra.style.display = "block";
     }
 
-    // 2) التقط الصورة
+    // 2) التقاط بجودة مناسبة لتقليل حجم الملف النهائي
     const canvas = await html2canvas(captureArea, {
-      scale: 2,
+      scale: Math.min(1.25, window.devicePixelRatio || 1), // جرّب 1.0 إذا تريد حجم أصغر
       backgroundColor: "#ffffff",
       useCORS: !USE_LOCAL_LOGO
     });
 
-    // 3) أخفِ الشعار والنص مجددًا
+    // 3) تصغير أبعاد الصورة قبل الحفظ (يضبط الحجم النهائي بشكل كبير)
+    const MAX_EXPORT_WIDTH = 1000; // ← غيّرها (مثلاً 900 / 800) لتصغير الحجم أكثر
+    const resized = downscaleCanvas(canvas, MAX_EXPORT_WIDTH);
+
+    // 4) تحويل إلى JPEG بجودة متحكم بها (أصغر من PNG بكثير)
+    const JPEG_QUALITY = 0.8; // ← 0.75 أو 0.7 يعطي حجم أصغر
+    resized.toBlob((blob)=>{
+      const name = (elName.textContent || "student").replace(/[^\w\u0600-\u06FF\s-]/g,'');
+      const exam = (elExam.textContent || "exam").replace(/[^\w-]/g,'');
+      downloadBlobAsFile(blob, `result_${exam}_${name}.jpg`);
+    }, "image/jpeg", JPEG_QUALITY);
+
+    // 5) أخفِ الشعار والنص مجددًا
     if (exportLogo)  exportLogo.style.display  = prevLogoDisplay || "none";
     if (exportExtra) exportExtra.style.display = prevExtraDisplay || "none";
 
-    // 4) نزّل الصورة
-    const name = (elName.textContent || "student").replace(/[^\w\u0600-\u06FF\s-]/g,'');
-    const exam = (elExam.textContent || "exam").replace(/[^\w-]/g,'');
-    downloadCanvasAsPNG(canvas, `result_${exam}_${name}.png`);
   }catch(err){
     if (exportLogo)  exportLogo.style.display  = "none";
     if (exportExtra) exportExtra.style.display = "none";
