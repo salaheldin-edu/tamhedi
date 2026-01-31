@@ -26,9 +26,9 @@
       --card:#f8fafc;
       --success:#1b5e20;
 
-      /* ← تحكم بحجم بانر الشعار من هنا فقط */
-      --hero-logo-height: 600px;   /* غيّر القيمة لتكبير/تصغير الشعار */
-      --hero-logo-max: 600px;
+      /* ← تحكم بحجم بانر الشعار من هنا */
+      --hero-logo-height: 600px;  /* كبّر/صغّر هذا الرقم */
+      --hero-logo-max: 600px;     /* سقف أقصى للارتفاع */
     }
 
     html,body{height:100%;}
@@ -77,13 +77,13 @@
       padding:10px;                     /* مسافة داخلية بسيطة */
     }
 
-    /* العنوان/النص تحت الشعار (مطلوب يتوسّط تمامًا) */
+    /* العنوان/النص تحت الشعار (بالمنتصف) */
     .titles{
       width:100%;
       display:flex;
       flex-direction:column;
       align-items:center;     /* يوسّط أفقيًا */
-      justify-content:center; /* يوسّط عموديًا (لو احتجنا) */
+      justify-content:center; /* يوسّط عموديًا */
       text-align:center;      /* يوسّط النص */
       margin-top:12px;        /* مسافة تحت الشعار */
       margin-bottom:12px;
@@ -177,10 +177,21 @@
       display:none;                 /* مخفي أثناء العرض */
       width:auto;
       height:auto;                  /* بدون تمطيط */
-      max-width:380px;              /* سقف عرض مناسب حتى لا يغطي النص */
-      max-height:280px;             /* سقف ارتفاع اختياري */
+      max-width:380px;              /* غيّرها لتكبير/تصغير الشعار في الصورة */
+      max-height:280px;
       margin:5px auto 12px;         /* تمركز أفقياً ومسافة تحت */
-      object-fit:contain;           /* يحافظ على النسبة */
+      object-fit:contain;
+    }
+
+    /* نص إضافي يظهر فقط داخل الصورة المصدّرة (أسفل "الدور التمهيدي") */
+    .export-extra{
+      display:none;                 /* مخفي أثناء العرض */
+      text-align:center;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:0.95rem;
+      line-height:1.5;
+      padding:0 8px;
     }
 
     .footer-note{
@@ -196,7 +207,7 @@
 
     /* تحسينات موبايل */
     @media (max-width: 580px){
-      .hero-logo{ height:270px; }
+      .hero-logo{ height:270px; }          /* ارتفاع أصغر على الشاشات الصغيرة */
       .titles h1{ font-size:1.5rem; }
       .field label{min-width:auto;width:100%;}
       .field input[type="text"]{flex:1 1 100%;}
@@ -282,6 +293,12 @@
         </table>
 
         <div class="footer-note">الدور التمهيدي / 2025 – 2026</div>
+
+        <!-- نص إضافي يظهر فقط داخل الصورة المصدّرة (أسفل "الدور التمهيدي") -->
+        <div id="exportExtra" class="export-extra">
+          <!-- اكتب النص الذي تريد يظهر في الصورة فقط -->
+          وزارة التربية – مديرية التربية / هذه النتيجة للاطلاع ولا تعتبر وثيقة رسمية
+        </div>
       </div>
 
       <div class="footer-note">تصميم وتنفيذ المهندس امين محمود</div>
@@ -378,9 +395,10 @@ const gradesBody = document.getElementById("gradesBody");
 const finalResult = document.getElementById("finalResult");
 const captureArea = document.getElementById("captureArea");
 
-/* عناصر الشعار */
+/* عناصر الشعار والنص للتصدير */
 const heroLogo = document.getElementById("heroLogo");       // يظهر في الرئيسية فقط
 const exportLogo = document.getElementById("exportLogo");   // يظهر فقط داخل الصورة المصدّرة
+const exportExtra = document.getElementById("exportExtra"); // نص إضافي للصورة فقط
 
 /************ Helpers ************/
 function setScreen(which){
@@ -523,19 +541,23 @@ goTemplateTop.addEventListener("click", ()=> setScreen("template"));
 
 printBtn.addEventListener("click", async ()=>{
   try{
-    // 1) أظهر الشعار مؤقتًا قبل الالتقاط (يظهر في الصورة فقط)
-    let prevDisplay = "";
+    // 1) أظهر الشعار + النص الإضافي مؤقتًا قبل الالتقاط (يظهران في الصورة فقط)
+    let prevLogoDisplay = "", prevExtraDisplay = "";
     if (exportLogo){
-      prevDisplay = exportLogo.style.display;
+      prevLogoDisplay = exportLogo.style.display;
       exportLogo.style.display = "block";
 
-      // تأكد من تحميل الصورة قبل الالتقاط
+      // تأكد من تحميل صورة الشعار قبل الالتقاط
       await new Promise(resolve => {
         if (exportLogo.complete) return resolve();
         const onLoad = () => { exportLogo.removeEventListener('load', onLoad); resolve(); };
         exportLogo.addEventListener('load', onLoad);
         setTimeout(resolve, 80); // احتياط لو كان cached
       });
+    }
+    if (exportExtra){
+      prevExtraDisplay = exportExtra.style.display;
+      exportExtra.style.display = "block";
     }
 
     // 2) التقط الصورة
@@ -545,17 +567,17 @@ printBtn.addEventListener("click", async ()=>{
       useCORS: !USE_LOCAL_LOGO
     });
 
-    // 3) أخفِ الشعار مجددًا
-    if (exportLogo){
-      exportLogo.style.display = prevDisplay || "none";
-    }
+    // 3) أخفِ الشعار والنص مجددًا
+    if (exportLogo)  exportLogo.style.display  = prevLogoDisplay || "none";
+    if (exportExtra) exportExtra.style.display = prevExtraDisplay || "none";
 
     // 4) نزّل الصورة
     const name = (elName.textContent || "student").replace(/[^\w\u0600-\u06FF\s-]/g,'');
     const exam = (elExam.textContent || "exam").replace(/[^\w-]/g,'');
     downloadCanvasAsPNG(canvas, `result_${exam}_${name}.png`);
   }catch(err){
-    if (exportLogo) exportLogo.style.display = "none";
+    if (exportLogo)  exportLogo.style.display  = "none";
+    if (exportExtra) exportExtra.style.display = "none";
     console.error(err);
     alert("تعذر إنشاء الصورة. تأكد من وجود الشعار محليًا (logo.png) والبيانات.");
   }
@@ -567,7 +589,3 @@ setScreen("home");
   </script>
 </body>
 </html>
-
-
-
-
