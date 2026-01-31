@@ -52,19 +52,15 @@
       border-bottom:1px solid var(--border);
       margin-bottom:12px;
     }
-    header .logo{ display:none; }  /* إلغاء الشعار الصغير */
+    header .logo{ display:none; }  /* إلغاء الشعار الصغير نهائياً */
     header .titles{ display:flex;flex-direction:column;gap:4px; }
-    header h1{
-      font-size:1.35rem;margin:0;color:var(--brand);font-weight:700;
-    }
-    header .sub{
-      font-size:0.9rem;color:var(--muted);
-    }
+    header h1{ font-size:1.35rem;margin:0;color:var(--brand);font-weight:700; }
+    header .sub{ font-size:0.9rem;color:var(--muted); }
 
     /* بانر الشعار كامل العرض في الرئيسية */
     .hero-logo-wrap{
-      width:calc(100% + 32px);             /* يمتد خارج البادينغ ليملأ العرض */
-      margin-inline:-16px;                 /* إلغاء الحواف الداخلية للحاوية */
+      width:calc(100% + 32px);   /* يمتد خارج البادينغ ليملأ العرض الحقيقي */
+      margin-inline:-16px;       /* إلغاء الحواف الداخلية للحاوية */
       margin-top:8px;
       margin-bottom:16px;
       background:#fff;
@@ -72,11 +68,11 @@
     }
     .hero-logo{
       width:100%;
-      height:clamp(120px, 28vw, 240px);    /* ارتفاع مرن حسب الشاشة */
+      height:clamp(120px, 28vw, 240px); /* ارتفاع مرن حسب الشاشة */
       display:block;
-      object-fit:contain;                   /* يحافظ على أبعاد الشعار */
+      object-fit:contain;               /* يحافظ على أبعاد الشعار */
       background:#fff;
-      padding:10px;                         /* مسافة داخلية بسيطة */
+      padding:10px;                     /* مسافة داخلية بسيطة */
     }
 
     /* بطاقات */
@@ -87,9 +83,7 @@
       padding:20px;
       box-shadow:0 6px 20px rgba(13,71,161,0.05);
     }
-    .card h2{
-      margin-top:0;font-size:1.2rem;color:var(--brand-600)
-    }
+    .card h2{ margin-top:0;font-size:1.2rem;color:var(--brand-600); }
 
     /* أزرار */
     .btn{
@@ -100,10 +94,7 @@
       box-shadow:0 4px 12px rgba(13,71,161,0.18);
     }
     .btn:hover{background:var(--brand-600);transform:translateY(-1px);}
-    .btn.secondary{
-      background:#ffffff;color:var(--brand);border:1px solid var(--brand);
-      box-shadow:none;
-    }
+    .btn.secondary{ background:#ffffff;color:var(--brand);border:1px solid var(--brand);box-shadow:none; }
     .btn.danger{background:var(--accent);}
     .btn.success{background:var(--success);}
 
@@ -135,9 +126,7 @@
       color:#0b3d8f;font-weight:700;padding:10px;border-bottom:1px solid var(--border);
       text-align:center;
     }
-    tbody td{
-      padding:10px;border-bottom:1px solid var(--border);text-align:center;
-    }
+    tbody td{ padding:10px;border-bottom:1px solid var(--border);text-align:center; }
     tbody tr:last-child td{border-bottom:none;}
     tfoot td{
       background:#f3f6fb;font-weight:700;color:#0b3d8f;padding:12px;border-top:1px solid var(--border);text-align:center;
@@ -147,12 +136,8 @@
       display:flex;flex-direction:column;gap:4px;margin:6px 0 14px;
     }
     .result-title .school{color:var(--muted);font-size:0.95rem}
-    .meta{
-      display:flex;gap:14px;flex-wrap:wrap;color:var(--ink);margin:6px 0 2px;
-    }
-    .meta .tag{
-      background:#fff;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-weight:700;
-    }
+    .meta{ display:flex;gap:14px;flex-wrap:wrap;color:var(--ink);margin:6px 0 2px; }
+    .meta .tag{ background:#fff;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-weight:700; }
 
     .not-found{
       background:#fff7f7;border:1px solid #ffd0d0;color:#8b0000;border-radius:12px;padding:12px;margin:8px 0 0;
@@ -163,22 +148,15 @@
       padding:18px;border:1px dashed var(--border);border-radius:12px;background:#ffffff;
     }
 
-    /* بانر الشعار داخل النتيجة (داخل captureArea) */
-    .result-hero{
-      width:100%;
-      background:#fff;
-      margin:0 0 12px 0;
-      border:1px solid var(--border);
-      border-radius:12px;
-      overflow:hidden;
-    }
-    .result-hero img{
-      width:100%;
-      height:clamp(110px, 24vw, 200px);
-      display:block;
-      object-fit:contain;
-      background:#fff;
-      padding:10px;
+    /* شعار خاص بالصورة المصدّرة فقط: مخفي على الشاشة */
+    .export-logo{
+      display:none;                 /* مخفي أثناء العرض */
+      width:auto;
+      height:auto;                  /* بدون تمطيط */
+      max-width:min(60%, 420px);    /* سقف عرض مناسب */
+      max-height:180px;             /* سقف ارتفاع اختياري */
+      margin:4px auto 12px;         /* تمركز أفقياً ومسافة تحت */
+      object-fit:contain;           /* يحافظ على النسبة */
     }
 
     .footer-note{
@@ -250,10 +228,8 @@
       </div>
 
       <div id="captureArea" class="card" aria-label="منطقة الطباعة">
-        <!-- بانر الشعار كامل العرض داخل النتيجة -->
-        <div class="result-hero">
-          <img id="resultHeroLogo" alt="الشعار الكامل" />
-        </div>
+        <!-- شعار خاص بالتصدير فقط: مخفي على الشاشة، يظهر فقط داخل الصورة المصدّرة -->
+        <img id="exportLogo" class="export-logo" alt="الشعار (تصدير فقط)" />
 
         <!-- معلومات الطالب -->
         <div class="result-title">
@@ -267,14 +243,9 @@
 
         <table aria-label="درجات الطالب">
           <thead>
-            <tr>
-              <th>المادة</th>
-              <th>الدرجة</th>
-            </tr>
+            <tr><th>المادة</th><th>الدرجة</th></tr>
           </thead>
-          <tbody id="gradesBody">
-            <!-- يملأ ديناميكياً -->
-          </tbody>
+          <tbody id="gradesBody"><!-- يملأ ديناميكياً --></tbody>
           <tfoot>
             <tr>
               <td>النتيجـــــــــــة</td>
@@ -330,8 +301,8 @@
 const CSV_FILE = "data.csv";
 
 // 2) الشعار: استخدم محلي لتفادي CORS عند الحفظ كصورة
-const USE_LOCAL_LOGO = true;                 // تأكّد أنها true
-const LOCAL_LOGO_PATH = "logo.png";          // ← ضع اسم ملف الشعار المحلي هنا
+const USE_LOCAL_LOGO = true;               // تأكّد أنها true
+const LOCAL_LOGO_PATH = "logo.png";        // ← ضع اسم ملف الشعار المحلي هنا
 // (لا تحتاج تعديل السطر التالي طالما USE_LOCAL_LOGO = true)
 const REMOTE_LOGO_URL = "https://drive.google.com/uc?export=view&id=FILE_ID";
 
@@ -380,9 +351,9 @@ const gradesBody = document.getElementById("gradesBody");
 const finalResult = document.getElementById("finalResult");
 const captureArea = document.getElementById("captureArea");
 
-/* عناصر الشعار الجديدة */
-const heroLogo = document.getElementById("heroLogo");
-const resultHeroLogo = document.getElementById("resultHeroLogo");
+/* عناصر الشعار */
+const heroLogo = document.getElementById("heroLogo");       // يظهر في الرئيسية فقط
+const exportLogo = document.getElementById("exportLogo");   // يظهر فقط داخل الصورة المصدّرة
 
 /************ Helpers ************/
 function setScreen(which){
@@ -393,12 +364,18 @@ function setScreen(which){
 
 function loadLogo(){
   const src = USE_LOCAL_LOGO ? LOCAL_LOGO_PATH : REMOTE_LOGO_URL;
-  if (!USE_LOCAL_LOGO){
-    heroLogo.crossOrigin = "anonymous";
-    resultHeroLogo.crossOrigin = "anonymous";
+
+  // رئيسية: يظهر الشعار
+  if (heroLogo){
+    if(!USE_LOCAL_LOGO) heroLogo.crossOrigin = "anonymous";
+    heroLogo.src = src;
   }
-  heroLogo.src = src;           // بانر الرئيسية
-  resultHeroLogo.src = src;     // بانر داخل النتيجة
+
+  // شعار التصدير فقط (مخفي على الشاشة)
+  if (exportLogo){
+    if(!USE_LOCAL_LOGO) exportLogo.crossOrigin = "anonymous";
+    exportLogo.src = src;
+  }
 }
 
 function normalizeExam(v){
@@ -518,15 +495,47 @@ goHomeTop.addEventListener("click", ()=> setScreen("home"));
 goTemplateTop.addEventListener("click", ()=> setScreen("template"));
 
 printBtn.addEventListener("click", async ()=>{
-  // التقاط الصورة — ينجح بشكل مضمون مع شعار محلي
-  const canvas = await html2canvas(captureArea, {
-    scale: 2,
-    backgroundColor: "#ffffff",
-    useCORS: !USE_LOCAL_LOGO
-  });
-  const name = (elName.textContent || "student").replace(/[^\w\u0600-\u06FF\s-]/g,'');
-  const exam = (elExam.textContent || "exam").replace(/[^\w-]/g,'');
-  downloadCanvasAsPNG(canvas, `result_${exam}_${name}.png`);
+  try{
+    // 1) أظهر الشعار مؤقتًا قبل الالتقاط (يظهر في الصورة فقط)
+    let prevDisplay = "";
+    if (exportLogo){
+      prevDisplay = exportLogo.style.display;
+      exportLogo.style.display = "block";
+
+      // تأكد من أن الصورة مُحمّلة بالكامل قبل الالتقاط
+      await new Promise(resolve => {
+        if (exportLogo.complete) return resolve();
+        const onLoad = () => { exportLogo.removeEventListener('load', onLoad); resolve(); };
+        exportLogo.addEventListener('load', onLoad);
+        // في حال كان src نفسه ولم يطلق load، نضيف مهلة قصيرة كاحتياط
+        setTimeout(resolve, 80);
+      });
+    }
+
+    // 2) التقط الصورة
+    const canvas = await html2canvas(captureArea, {
+      scale: 2,
+      backgroundColor: "#ffffff",
+      useCORS: !USE_LOCAL_LOGO
+    });
+
+    // 3) أعد إخفاء الشعار مباشرة بعد الالتقاط
+    if (exportLogo){
+      exportLogo.style.display = prevDisplay || "none";
+    }
+
+    // 4) نزّل الصورة
+    const name = (elName.textContent || "student").replace(/[^\w\u0600-\u06FF\s-]/g,'');
+    const exam = (elExam.textContent || "exam").replace(/[^\w-]/g,'');
+    downloadCanvasAsPNG(canvas, `result_${exam}_${name}.png`);
+  }catch(err){
+    // في حالة الخطأ، تأكد من إعادة الإخفاء
+    if (exportLogo){
+      exportLogo.style.display = "none";
+    }
+    console.error(err);
+    alert("تعذر إنشاء الصورة. تأكد من وجود الشعار محليًا (logo.png) والبيانات.");
+  }
 });
 
 // تحميل الشعار وتعيين الصفحة الرئيسية كبداية
