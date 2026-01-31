@@ -27,8 +27,8 @@
       --success:#1b5e20;
 
       /* ← تحكم بحجم بانر الشعار من هنا */
-      --hero-logo-height: 600px;  /* كبّر/صغّر هذا الرقم */
-      --hero-logo-max: 600px;     /* سقف أقصى للارتفاع */
+      --hero-logo-height: 600px;  /* كبّر/صغّر */
+      --hero-logo-max: 600px;
     }
 
     html,body{height:100%;}
@@ -82,10 +82,10 @@
       width:100%;
       display:flex;
       flex-direction:column;
-      align-items:center;     /* يوسّط أفقيًا */
-      justify-content:center; /* يوسّط عموديًا */
-      text-align:center;      /* يوسّط النص */
-      margin-top:12px;        /* مسافة تحت الشعار */
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      margin-top:12px;
       margin-bottom:12px;
     }
     .titles h1{
@@ -156,6 +156,15 @@
       background:#f3f6fb;font-weight:700;color:#0b3d8f;padding:12px;border-top:1px solid var(--border);text-align:center;
     }
 
+    /* تلوين مربعات الدرجات حسب النجاح/الرسوب */
+    .grade-cell{
+      font-weight:700;
+      border-left:1px solid var(--border);
+      transition:background .15s ease, color .15s ease;
+    }
+    .grade-pass{ background:#e8f5e9; color:#1b5e20; } /* أخضر فاتح (>= 50) */
+    .grade-fail{ background:#ffebee; color:#b71c1c; } /* أحمر فاتح (< 50 أو قيمة نصية) */
+
     .result-title{
       display:flex;flex-direction:column;gap:4px;margin:6px 0 14px;
     }
@@ -207,7 +216,7 @@
 
     /* تحسينات موبايل */
     @media (max-width: 580px){
-      .hero-logo{ height:270px; }          /* ارتفاع أصغر على الشاشات الصغيرة */
+      .hero-logo{ height:270px; }
       .titles h1{ font-size:1.5rem; }
       .field label{min-width:auto;width:100%;}
       .field input[type="text"]{flex:1 1 100%;}
@@ -283,7 +292,7 @@
           <thead>
             <tr><th>المادة</th><th>الدرجة</th></tr>
           </thead>
-          <tbody id="gradesBody"><!-- يملأ ديناميكياً --></tbody>
+        <tbody id="gradesBody"><!-- يملأ ديناميكياً --></tbody>
           <tfoot>
             <tr>
               <td>النتيجـــــــــــة</td>
@@ -296,8 +305,7 @@
 
         <!-- نص إضافي يظهر فقط داخل الصورة المصدّرة (أسفل "الدور التمهيدي") -->
         <div id="exportExtra" class="export-extra">
-          <!-- اكتب النص الذي تريد يظهر في الصورة فقط -->
-          وزارة التربية – مديرية التربية / هذه النتيجة للاطلاع ولا تعتبر وثيقة رسمية
+          هذه وثيقة للعرض فقط ولا تعتبر مستند رسمي - تصميم وتنفيذ المهندس امين محمود
         </div>
       </div>
 
@@ -423,21 +431,35 @@ function loadLogo(){
   }
 }
 
-function normalizeExam(v){
-  if(!v) return "";
-  // إزالة الفراغات وتحويل أرقام عربية/هندية إلى إنجليزية
-  const d = v.toString().trim()
-    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
-    .replace(/[^\d]/g, "");
-  return d;
+function normalizeDigits(str){
+  // يحوّل الأرقام العربية/الهندية إلى إنجليزية
+  if (str === null || str === undefined) return "";
+  return String(str).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+}
+
+function classifyGrade(val){
+  // المطلوب: 50+ => Pass (أخضر) ، أقل من 50 أو قيمة نصية => Fail (أحمر)
+  const s = String(val ?? "").trim();
+  if (!s) return "fail"; // فارغة تُعد رسوب
+  const num = parseFloat(normalizeDigits(s).replace(/[^\d.]/g, ""));
+  if (!Number.isFinite(num)) return "fail"; // قيمة نصية مثل "غائب"
+  return (num >= 50) ? "pass" : "fail";
 }
 
 function buildTableRow(subjectLabel, gradeVal){
   const tr = document.createElement("tr");
   const tdSub = document.createElement("td");
   tdSub.textContent = subjectLabel;
+
   const tdGrade = document.createElement("td");
-  tdGrade.textContent = gradeVal ?? "—";
+  tdGrade.classList.add("grade-cell");
+  tdGrade.textContent = (gradeVal ?? "—");
+
+  // تلوين حسب القاعدة الجديدة
+  const cls = classifyGrade(gradeVal);
+  if (cls === "pass") tdGrade.classList.add("grade-pass");
+  else tdGrade.classList.add("grade-fail");
+
   tr.appendChild(tdSub);
   tr.appendChild(tdGrade);
   return tr;
@@ -449,14 +471,15 @@ function fillResultRow(row){
   elExam.textContent = row[COLS.EXAM] ?? "—";
   elSchool.textContent = (row[COLS.SCHOOL] ? `اسم المدرسة / ${row[COLS.SCHOOL]}` : "اسم المدرسة / —");
 
-  // تعبئة جدول الدرجات
+  // تعبئة جدول الدرجات (مع التلوين)
   gradesBody.innerHTML = "";
   SUBJECTS.forEach(sub=>{
     const val = row[COLS[sub.key]] ?? "—";
     gradesBody.appendChild(buildTableRow(sub.label, val));
   });
 
-  // النتيجة النهائية
+  // النتيجة النهائية (نبقيها بدون تلوين بناءً على طلبك السابق؛
+  // إن رغبت بتلوينها بنفس القاعدة أخبرني)
   finalResult.textContent = row[COLS.FINAL] ?? "—";
 }
 
@@ -468,6 +491,15 @@ function showNotFound(msg){
 function clearNotFound(){
   homeMsg.style.display = "none";
   homeMsg.textContent = "";
+}
+
+function normalizeExam(v){
+  if(!v) return "";
+  // إزالة الفراغات وتحويل أرقام عربية/هندية إلى إنجليزية
+  const d = v.toString().trim()
+    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/[^\d]/g, "");
+  return d;
 }
 
 function downloadCanvasAsPNG(canvas, filename){
