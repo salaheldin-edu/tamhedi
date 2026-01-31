@@ -34,6 +34,7 @@
       color:var(--ink);
       font-family:"Noto Naskh Arabic", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
       line-height:1.6;
+      overflow-x:hidden; /* منع أي تمرير أفقي على الموبايل */
     }
 
     .container{
@@ -42,25 +43,40 @@
       padding:24px 16px 48px;
     }
 
+    /* ترويسة نص فقط (بدون صورة صغيرة) */
     header{
       display:flex;
-      align-items:center;
-      gap:16px;
-      padding:16px 0 8px;
+      align-items:flex-start;
+      gap:12px;
+      padding:8px 0;
       border-bottom:1px solid var(--border);
-      margin-bottom:24px;
+      margin-bottom:12px;
     }
-    header .logo{
-      width:72px;height:72px;flex:0 0 72px;object-fit:contain;filter:contrast(1.1);
-    }
-    header .titles{
-      display:flex;flex-direction:column;gap:4px;
-    }
+    header .logo{ display:none; }  /* إلغاء الشعار الصغير */
+    header .titles{ display:flex;flex-direction:column;gap:4px; }
     header h1{
-      font-size:1.5rem;margin:0;color:var(--brand);font-weight:700;
+      font-size:1.35rem;margin:0;color:var(--brand);font-weight:700;
     }
     header .sub{
-      font-size:0.95rem;color:var(--muted);
+      font-size:0.9rem;color:var(--muted);
+    }
+
+    /* بانر الشعار كامل العرض في الرئيسية */
+    .hero-logo-wrap{
+      width:calc(100% + 32px);             /* يمتد خارج البادينغ ليملأ العرض */
+      margin-inline:-16px;                 /* إلغاء الحواف الداخلية للحاوية */
+      margin-top:8px;
+      margin-bottom:16px;
+      background:#fff;
+      border-bottom:1px solid var(--border);
+    }
+    .hero-logo{
+      width:100%;
+      height:clamp(120px, 28vw, 240px);    /* ارتفاع مرن حسب الشاشة */
+      display:block;
+      object-fit:contain;                   /* يحافظ على أبعاد الشعار */
+      background:#fff;
+      padding:10px;                         /* مسافة داخلية بسيطة */
     }
 
     /* بطاقات */
@@ -127,11 +143,8 @@
       background:#f3f6fb;font-weight:700;color:#0b3d8f;padding:12px;border-top:1px solid var(--border);text-align:center;
     }
 
-    .result-header{
-      display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center;margin:10px 0 16px;
-    }
     .result-title{
-      display:flex;flex-direction:column;gap:2px;
+      display:flex;flex-direction:column;gap:4px;margin:6px 0 14px;
     }
     .result-title .school{color:var(--muted);font-size:0.95rem}
     .meta{
@@ -145,10 +158,29 @@
       background:#fff7f7;border:1px solid #ffd0d0;color:#8b0000;border-radius:12px;padding:12px;margin:8px 0 0;
     }
 
-    /* مساحة التقاط الصورة */
+    /* مساحة التقاط الصورة (نتيجة) */
     #captureArea{
       padding:18px;border:1px dashed var(--border);border-radius:12px;background:#ffffff;
     }
+
+    /* بانر الشعار داخل النتيجة (داخل captureArea) */
+    .result-hero{
+      width:100%;
+      background:#fff;
+      margin:0 0 12px 0;
+      border:1px solid var(--border);
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .result-hero img{
+      width:100%;
+      height:clamp(110px, 24vw, 200px);
+      display:block;
+      object-fit:contain;
+      background:#fff;
+      padding:10px;
+    }
+
     .footer-note{
       margin-top:10px;color:var(--muted);font-size:0.85rem;text-align:center;
     }
@@ -159,17 +191,31 @@
     }
     .topbar .title{font-weight:700;color:var(--brand-600)}
     .topbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+    /* تحسينات موبايل إضافية */
+    @media (max-width: 480px){
+      .field label{min-width:auto;width:100%;}
+      .field input[type="text"]{flex:1 1 100%;}
+      .container{padding:16px 12px 32px;}
+      #captureArea{padding:12px;}
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
+      <!-- ألغينا الشعار الصغير هنا حسب رغبتك -->
       <img id="logo" class="logo" alt="الشعار" />
       <div class="titles">
         <h1>نظام عرض النتائج</h1>
         <div class="sub">الدور التمهيدي / 2025 – 2026</div>
       </div>
     </header>
+
+    <!-- بانر الشعار كامل العرض في الرئيسية -->
+    <div class="hero-logo-wrap">
+      <img id="heroLogo" class="hero-logo" src="" alt="الشعار الكامل" />
+    </div>
 
     <!-- شريط علوي -->
     <div class="topbar">
@@ -204,15 +250,18 @@
       </div>
 
       <div id="captureArea" class="card" aria-label="منطقة الطباعة">
-        <div class="result-header">
-          <img id="logoSmall" class="logo" alt="الشعار" />
-          <div class="result-title">
-            <h2 style="margin:0">نتيجة الطالب</h2>
-            <div class="school" id="schoolName">اسم المدرسة / —</div>
-            <div class="meta">
-              <div class="tag">اسم التلميذ: <span id="studentName">—</span></div>
-              <div class="tag">الرقم الامتحاني: <span id="studentExam">—</span></div>
-            </div>
+        <!-- بانر الشعار كامل العرض داخل النتيجة -->
+        <div class="result-hero">
+          <img id="resultHeroLogo" alt="الشعار الكامل" />
+        </div>
+
+        <!-- معلومات الطالب -->
+        <div class="result-title">
+          <h2 style="margin:0">نتيجة الطالب</h2>
+          <div class="school" id="schoolName">اسم المدرسة / —</div>
+          <div class="meta">
+            <div class="tag">اسم التلميذ: <span id="studentName">—</span></div>
+            <div class="tag">الرقم الامتحاني: <span id="studentExam">—</span></div>
           </div>
         </div>
 
@@ -276,223 +325,213 @@
   </div>
 
   <script>
-   
 /************ CONFIG ************/
 // 1) ملف CSV
 const CSV_FILE = "data.csv";
 
 // 2) الشعار: استخدم محلي لتفادي CORS عند الحفظ كصورة
 const USE_LOCAL_LOGO = true;                 // تأكّد أنها true
-const LOCAL_LOGO_PATH = "logo.png";      // ← اسم ملفك المحلي هنا
-
+const LOCAL_LOGO_PATH = "logo.png";          // ← ضع اسم ملف الشعار المحلي هنا
 // (لا تحتاج تعديل السطر التالي طالما USE_LOCAL_LOGO = true)
 const REMOTE_LOGO_URL = "https://drive.google.com/uc?export=view&id=FILE_ID";
 
-    // 3) خريطة أسماء الأعمدة في ملف CSV (عدّلها لتطابق ملفك حرفيًا)
-    const COLS = {
-      EXAM: "الرقم الامتحاني",
-      NAME: "اسم التلميذ",
-      SCHOOL: "المدرسة",
-      ISL: "التربية الإسلامية",
-      AR: "اللغة العربية",
-      EN: "اللغة الإنكليزية",
-      MATH: "الرياضيات",
-      SOC: "الاجتماعيات",
-      SCI: "العلوم",
-      FINAL: "النتيجـــــــــــة"
-      // تستطيع إضافة أعمدة أخرى عند الحاجة
-    };
+// 3) خريطة أسماء الأعمدة في ملف CSV (عدّلها لتطابق ملفك حرفيًا)
+const COLS = {
+  EXAM: "الرقم الامتحاني",
+  NAME: "اسم التلميذ",
+  SCHOOL: "المدرسة",
+  ISL: "التربية الإسلامية",
+  AR: "اللغة العربية",
+  EN: "اللغة الإنكليزية",
+  MATH: "الرياضيات",
+  SOC: "الاجتماعيات",
+  SCI: "العلوم",
+  FINAL: "النتيجـــــــــــة"
+};
 
-    // 4) قائمة المواد وترتيبها لملء الجدول
-    const SUBJECTS = [
-      { key: "ISL", label: "التربية الإسلامية" },
-      { key: "AR",  label: "اللغة العربية" },
-      { key: "EN",  label: "اللغة الإنكليزية" },
-      { key: "MATH",label: "الرياضيات" },
-      { key: "SOC", label: "الاجتماعيات" },
-      { key: "SCI", label: "العلوم" }
-    ];
+// 4) قائمة المواد وترتيبها لملء الجدول
+const SUBJECTS = [
+  { key: "ISL", label: "التربية الإسلامية" },
+  { key: "AR",  label: "اللغة العربية" },
+  { key: "EN",  label: "اللغة الإنكليزية" },
+  { key: "MATH",label: "الرياضيات" },
+  { key: "SOC", label: "الاجتماعيات" },
+  { key: "SCI", label: "العلوم" }
+];
 
-    /************ DOM ************/
-    const screens = {
-      home: document.getElementById("homeScreen"),
-      result: document.getElementById("resultScreen"),
-      template: document.getElementById("templateScreen")
-    };
-    const examInput = document.getElementById("examInput");
-    const searchBtn = document.getElementById("searchBtn");
-    const backBtn = document.getElementById("backBtn");
-    const printBtn = document.getElementById("printBtn");
-    const goHomeTop = document.getElementById("goHomeTop");
-    const goTemplateTop = document.getElementById("goTemplateTop");
-    const homeMsg = document.getElementById("homeMsg");
+/************ DOM ************/
+const screens = {
+  home: document.getElementById("homeScreen"),
+  result: document.getElementById("resultScreen"),
+  template: document.getElementById("templateScreen")
+};
+const examInput = document.getElementById("examInput");
+const searchBtn = document.getElementById("searchBtn");
+const backBtn = document.getElementById("backBtn");
+const printBtn = document.getElementById("printBtn");
+const goHomeTop = document.getElementById("goHomeTop");
+const goTemplateTop = document.getElementById("goTemplateTop");
+const homeMsg = document.getElementById("homeMsg");
 
-    const elName = document.getElementById("studentName");
-    const elExam = document.getElementById("studentExam");
-    const elSchool = document.getElementById("schoolName");
-    const gradesBody = document.getElementById("gradesBody");
-    const finalResult = document.getElementById("finalResult");
-    const captureArea = document.getElementById("captureArea");
+const elName = document.getElementById("studentName");
+const elExam = document.getElementById("studentExam");
+const elSchool = document.getElementById("schoolName");
+const gradesBody = document.getElementById("gradesBody");
+const finalResult = document.getElementById("finalResult");
+const captureArea = document.getElementById("captureArea");
 
-    const logo = document.getElementById("logo");
-    const logoSmall = document.getElementById("logoSmall");
+/* عناصر الشعار الجديدة */
+const heroLogo = document.getElementById("heroLogo");
+const resultHeroLogo = document.getElementById("resultHeroLogo");
 
-    /************ Helpers ************/
-    function setScreen(which){
-      Object.values(screens).forEach(s => s.classList.remove("active"));
-      screens[which].classList.add("active");
-      window.scrollTo({top:0,behavior:"smooth"});
-    }
+/************ Helpers ************/
+function setScreen(which){
+  Object.values(screens).forEach(s => s.classList.remove("active"));
+  screens[which].classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
-    function loadLogo(){
-      if(USE_LOCAL_LOGO){
-        logo.src = LOCAL_LOGO_PATH;
-        logoSmall.src = LOCAL_LOGO_PATH;
-      }else{
-        logo.crossOrigin = "anonymous";
-        logoSmall.crossOrigin = "anonymous";
-        logo.src = REMOTE_LOGO_URL;
-        logoSmall.src = REMOTE_LOGO_URL;
-      }
-    }
+function loadLogo(){
+  const src = USE_LOCAL_LOGO ? LOCAL_LOGO_PATH : REMOTE_LOGO_URL;
+  if (!USE_LOCAL_LOGO){
+    heroLogo.crossOrigin = "anonymous";
+    resultHeroLogo.crossOrigin = "anonymous";
+  }
+  heroLogo.src = src;           // بانر الرئيسية
+  resultHeroLogo.src = src;     // بانر داخل النتيجة
+}
 
-    function normalizeExam(v){
-      if(!v) return "";
-      // إزالة الفراغات وتحويل أرقام عربية/هندية إلى إنجليزية
-      const d = v.toString().trim()
-        .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
-        .replace(/[^\d]/g, "");
-      return d;
-    }
+function normalizeExam(v){
+  if(!v) return "";
+  // إزالة الفراغات وتحويل أرقام عربية/هندية إلى إنجليزية
+  const d = v.toString().trim()
+    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/[^\d]/g, "");
+  return d;
+}
 
-    function buildTableRow(subjectLabel, gradeVal){
-      const tr = document.createElement("tr");
-      const tdSub = document.createElement("td");
-      tdSub.textContent = subjectLabel;
-      const tdGrade = document.createElement("td");
-      tdGrade.textContent = gradeVal ?? "—";
-      tr.appendChild(tdSub);
-      tr.appendChild(tdGrade);
-      return tr;
-    }
+function buildTableRow(subjectLabel, gradeVal){
+  const tr = document.createElement("tr");
+  const tdSub = document.createElement("td");
+  tdSub.textContent = subjectLabel;
+  const tdGrade = document.createElement("td");
+  tdGrade.textContent = gradeVal ?? "—";
+  tr.appendChild(tdSub);
+  tr.appendChild(tdGrade);
+  return tr;
+}
 
-    function fillResultRow(row){
-      // تعبئة رأس البطاقة
-      elName.textContent = row[COLS.NAME] ?? "—";
-      elExam.textContent = row[COLS.EXAM] ?? "—";
-      elSchool.textContent = (row[COLS.SCHOOL] ? `اسم المدرسة / ${row[COLS.SCHOOL]}` : "اسم المدرسة / —");
+function fillResultRow(row){
+  // تعبئة رأس البطاقة
+  elName.textContent = row[COLS.NAME] ?? "—";
+  elExam.textContent = row[COLS.EXAM] ?? "—";
+  elSchool.textContent = (row[COLS.SCHOOL] ? `اسم المدرسة / ${row[COLS.SCHOOL]}` : "اسم المدرسة / —");
 
-      // تعبئة جدول الدرجات
-      gradesBody.innerHTML = "";
-      SUBJECTS.forEach(sub=>{
-        const val = row[COLS[sub.key]] ?? "—";
-        gradesBody.appendChild(buildTableRow(sub.label, val));
-      });
+  // تعبئة جدول الدرجات
+  gradesBody.innerHTML = "";
+  SUBJECTS.forEach(sub=>{
+    const val = row[COLS[sub.key]] ?? "—";
+    gradesBody.appendChild(buildTableRow(sub.label, val));
+  });
 
-      // النتيجة النهائية
-      finalResult.textContent = row[COLS.FINAL] ?? "—";
-    }
+  // النتيجة النهائية
+  finalResult.textContent = row[COLS.FINAL] ?? "—";
+}
 
-    function showNotFound(msg){
-      homeMsg.textContent = msg;
-      homeMsg.style.display = "block";
-    }
+function showNotFound(msg){
+  homeMsg.textContent = msg;
+  homeMsg.style.display = "block";
+}
 
-    function clearNotFound(){
-      homeMsg.style.display = "none";
-      homeMsg.textContent = "";
-    }
+function clearNotFound(){
+  homeMsg.style.display = "none";
+  homeMsg.textContent = "";
+}
 
-    function downloadCanvasAsPNG(canvas, filename){
-      canvas.toBlob(function(blob){
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = filename;
-        link.click();
-        URL.revokeObjectURL(link.href);
-      }, "image/png", 1);
-    }
+function downloadCanvasAsPNG(canvas, filename){
+  canvas.toBlob(function(blob){
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }, "image/png", 1);
+}
 
-    /************ Search Logic ************/
-    function findUniqueByExam(rows, exam){
-      // حصري وبدون تكرار: إذا تعدد — نأخذ أول سطر مطابق ونظهر تنبيه بسيط في الكونسول
-      const matches = rows.filter(r => normalizeExam(r[COLS.EXAM]) === exam);
-      if(matches.length > 1){
-        console.warn("تحذير: تكرر الرقم الامتحاني في أكثر من سجل. تم استخدام أول سطر مطابق.");
-      }
-      return matches[0] || null;
-    }
+/************ Search Logic ************/
+function findUniqueByExam(rows, exam){
+  // حصري وبدون تكرار: إذا تعدد — نأخذ أول سطر مطابق ونظهر تنبيه بسيط في الكونسول
+  const matches = rows.filter(r => normalizeExam(r[COLS.EXAM]) === exam);
+  if(matches.length > 1){
+    console.warn("تحذير: تكرر الرقم الامتحاني في أكثر من سجل. تم استخدام أول سطر مطابق.");
+  }
+  return matches[0] || null;
+}
 
-    async function searchAndShow(exam){
-      clearNotFound();
+async function searchAndShow(exam){
+  clearNotFound();
 
-      try{
-        const csvText = await fetch(CSV_FILE, {cache: "no-store"}).then(r=>{
-          if(!r.ok) throw new Error("تعذر تحميل ملف البيانات");
-          return r.text();
-        });
-
-        const parsed = Papa.parse(csvText, {header:true, skipEmptyLines:true});
-        if(parsed.errors?.length){
-          console.error(parsed.errors);
-        }
-        const rows = parsed.data || [];
-        const row = findUniqueByExam(rows, exam);
-
-        if(!row){
-          showNotFound("لم يتم العثور على نتيجة لهذا الرقم الامتحاني. تأكد من الإدخال.");
-          return;
-        }
-
-        fillResultRow(row);
-        setScreen("result");
-      }catch(err){
-        console.error(err);
-        showNotFound("حدث خطأ أثناء تحميل البيانات. تأكد من وجود الملف data.csv بجانب صفحة HTML.");
-      }
-    }
-
-    /************ Events ************/
-    searchBtn.addEventListener("click", ()=>{
-      const exam = normalizeExam(examInput.value);
-      if(!exam){
-        showNotFound("يرجى إدخال الرقم الامتحاني بشكل صحيح.");
-        return;
-      }
-      searchAndShow(exam);
+  try{
+    const csvText = await fetch(CSV_FILE, {cache: "no-store"}).then(r=>{
+      if(!r.ok) throw new Error("تعذر تحميل ملف البيانات");
+      return r.text();
     });
 
-    examInput.addEventListener("keydown", (e)=>{
-      if(e.key === "Enter"){
-        searchBtn.click();
-      }
-    });
+    const parsed = Papa.parse(csvText, {header:true, skipEmptyLines:true});
+    if(parsed.errors?.length){
+      console.error(parsed.errors);
+    }
+    const rows = parsed.data || [];
+    const row = findUniqueByExam(rows, exam);
 
-    backBtn.addEventListener("click", ()=> setScreen("home"));
-    goHomeTop.addEventListener("click", ()=> setScreen("home"));
-    goTemplateTop.addEventListener("click", ()=> setScreen("template"));
+    if(!row){
+      showNotFound("لم يتم العثور على نتيجة لهذا الرقم الامتحاني. تأكد من الإدخال.");
+      return;
+    }
 
-    printBtn.addEventListener("click", async ()=>{
-      // التقاط الصورة
-      // ملاحظة: إذا كان الشعار من مصدر خارجي بدون CORS سيمنع الحفظ
-      const canvas = await html2canvas(captureArea, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        useCORS: !USE_LOCAL_LOGO
-      });
-      const name = elName.textContent || "student";
-      const exam = elExam.textContent || "exam";
-      downloadCanvasAsPNG(canvas, `result_${exam}_${name}.png`);
-    });
+    fillResultRow(row);
+    setScreen("result");
+  }catch(err){
+    console.error(err);
+    showNotFound("حدث خطأ أثناء تحميل البيانات. تأكد من وجود الملف data.csv بجانب صفحة HTML.");
+  }
+}
 
-    // تحميل الشعار وتعيين الصفحة الرئيسية كبداية
-    loadLogo();
-    setScreen("home");
+/************ Events ************/
+searchBtn.addEventListener("click", ()=>{
+  const exam = normalizeExam(examInput.value);
+  if(!exam){
+    showNotFound("يرجى إدخال الرقم الامتحاني بشكل صحيح.");
+    return;
+  }
+  searchAndShow(exam);
+});
+
+examInput.addEventListener("keydown", (e)=>{
+  if(e.key === "Enter"){
+    searchBtn.click();
+  }
+});
+
+backBtn.addEventListener("click", ()=> setScreen("home"));
+goHomeTop.addEventListener("click", ()=> setScreen("home"));
+goTemplateTop.addEventListener("click", ()=> setScreen("template"));
+
+printBtn.addEventListener("click", async ()=>{
+  // التقاط الصورة — ينجح بشكل مضمون مع شعار محلي
+  const canvas = await html2canvas(captureArea, {
+    scale: 2,
+    backgroundColor: "#ffffff",
+    useCORS: !USE_LOCAL_LOGO
+  });
+  const name = (elName.textContent || "student").replace(/[^\w\u0600-\u06FF\s-]/g,'');
+  const exam = (elExam.textContent || "exam").replace(/[^\w-]/g,'');
+  downloadCanvasAsPNG(canvas, `result_${exam}_${name}.png`);
+});
+
+// تحميل الشعار وتعيين الصفحة الرئيسية كبداية
+loadLogo();
+setScreen("home");
   </script>
 </body>
-
 </html>
-
-
-
-
