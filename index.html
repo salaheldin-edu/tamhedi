@@ -176,6 +176,33 @@
       .field input[type="text"]{flex:1 1 100%;}
       .container{padding:16px 12px 32px;}
       #captureArea{padding:12px;}
+      <style>
+   ...  
+   ... (كل CSS القديم)
+
+   /* ضع هذا الجزء في النهاية */
+   .titles{
+     width: 100%;
+     text-align: center;
+     display: flex;
+     flex-direction: column;
+     justify-content: center;
+     align-items: center;
+     margin-top: 12px;
+   }
+
+   .titles h1{
+     margin: 0;
+     font-size: 1.6rem;
+     font-weight: 700;
+   }
+
+   .titles .sub{
+     margin-top: 6px;
+     font-size: 1rem;
+     color: var(--muted);
+   
+
     }
   </style>
 </head>
@@ -547,6 +574,7 @@ setScreen("home");
   </script>
 </body>
 </html>
+
 
 
 
