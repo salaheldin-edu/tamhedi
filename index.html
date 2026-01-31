@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>نظام عرض النتائج - الدور التمهيدي 2025-2026</title>
+  <meta name="color-scheme" content="light only" />
+
+  <!-- خطوط عربية مناسبة لواجهة رسمية -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- مكتبات للقراءة من CSV والتقاط صورة الصفحة -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+  <style>
+    :root{
+      --brand:#0d47a1;        /* أزرق رسمي */
+      --brand-600:#0b3d8f;
+      --accent:#c62828;       /* أحمر للتأكيد */
+      --ink:#1b1f23;          /* نص أسود */
+      --muted:#5b6470;        /* نص ثانوي */
+      --border:#e2e6ea;
+      --bg:#ffffff;
+      --card:#f8fafc;
+      --success:#1b5e20;
+    }
+
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Noto Naskh Arabic", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+      line-height:1.6;
+    }
+
+    .container{
+      max-width:980px;
+      margin-inline:auto;
+      padding:24px 16px 48px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      gap:16px;
+      padding:16px 0 8px;
+      border-bottom:1px solid var(--border);
+      margin-bottom:24px;
+    }
+    header .logo{
+      width:72px;height:72px;flex:0 0 72px;object-fit:contain;filter:contrast(1.1);
+    }
+    header .titles{
+      display:flex;flex-direction:column;gap:4px;
+    }
+    header h1{
+      font-size:1.5rem;margin:0;color:var(--brand);font-weight:700;
+    }
+    header .sub{
+      font-size:0.95rem;color:var(--muted);
+    }
+
+    /* بطاقات */
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:20px;
+      box-shadow:0 6px 20px rgba(13,71,161,0.05);
+    }
+    .card h2{
+      margin-top:0;font-size:1.2rem;color:var(--brand-600)
+    }
+
+    /* أزرار */
+    .btn{
+      appearance:none;border:none;border-radius:10px;
+      padding:10px 16px;font-weight:700;cursor:pointer;
+      background:var(--brand);color:#fff;
+      transition:transform .06s ease, box-shadow .2s ease, background .2s ease;
+      box-shadow:0 4px 12px rgba(13,71,161,0.18);
+    }
+    .btn:hover{background:var(--brand-600);transform:translateY(-1px);}
+    .btn.secondary{
+      background:#ffffff;color:var(--brand);border:1px solid var(--brand);
+      box-shadow:none;
+    }
+    .btn.danger{background:var(--accent);}
+    .btn.success{background:var(--success);}
+
+    /* حقول الإدخال */
+    .field{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      margin:8px 0 16px;
+    }
+    .field label{min-width:140px;color:var(--muted)}
+    .field input[type="text"]{
+      flex:1 1 280px;
+      padding:10px 12px;border:1px solid var(--border);border-radius:10px;
+      font-size:1rem;direction:ltr;text-align:start;
+    }
+    .hint{color:var(--muted);font-size:0.9rem}
+
+    /* أقسام/صفحات */
+    .screen{display:none;}
+    .screen.active{display:block;animation:fade .2s ease}
+    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+    /* جدول الدرجات */
+    table{
+      width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;
+      border:1px solid var(--border);
+    }
+    thead th{
+      background:linear-gradient(180deg,#e9f0fb,#dbe7fb);
+      color:#0b3d8f;font-weight:700;padding:10px;border-bottom:1px solid var(--border);
+      text-align:center;
+    }
+    tbody td{
+      padding:10px;border-bottom:1px solid var(--border);text-align:center;
+    }
+    tbody tr:last-child td{border-bottom:none;}
+    tfoot td{
+      background:#f3f6fb;font-weight:700;color:#0b3d8f;padding:12px;border-top:1px solid var(--border);text-align:center;
+    }
+
+    .result-header{
+      display:grid;grid-template-columns:120px 1fr;gap:16px;align-items:center;margin:10px 0 16px;
+    }
+    .result-title{
+      display:flex;flex-direction:column;gap:2px;
+    }
+    .result-title .school{color:var(--muted);font-size:0.95rem}
+    .meta{
+      display:flex;gap:14px;flex-wrap:wrap;color:var(--ink);margin:6px 0 2px;
+    }
+    .meta .tag{
+      background:#fff;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-weight:700;
+    }
+
+    .not-found{
+      background:#fff7f7;border:1px solid #ffd0d0;color:#8b0000;border-radius:12px;padding:12px;margin:8px 0 0;
+    }
+
+    /* مساحة التقاط الصورة */
+    #captureArea{
+      padding:18px;border:1px dashed var(--border);border-radius:12px;background:#ffffff;
+    }
+    .footer-note{
+      margin-top:10px;color:var(--muted);font-size:0.85rem;text-align:center;
+    }
+
+    /* شريط تنقّل علوي بسيط */
+    .topbar{
+      display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
+    }
+    .topbar .title{font-weight:700;color:var(--brand-600)}
+    .topbar .actions{display:flex;gap:8px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <img id="logo" class="logo" alt="الشعار" />
+      <div class="titles">
+        <h1>نظام عرض النتائج</h1>
+        <div class="sub">الدور التمهيدي / 2025 – 2026</div>
+      </div>
+    </header>
+
+    <!-- شريط علوي -->
+    <div class="topbar">
+      <div class="title">واجهة رسمية</div>
+      <div class="actions">
+        <button class="btn secondary" id="goHomeTop" type="button">الصفحة الرئيسية</button>
+        <button class="btn" id="goTemplateTop" type="button">شكل النتيجة</button>
+      </div>
+    </div>
+
+    <!-- الصفحة #1: الرئيسية / الترحيب + البحث -->
+    <section id="homeScreen" class="screen active" aria-label="الصفحة الرئيسية">
+      <div class="card">
+        <h2>أدخل الرقم الامتحاني لعرض النتيجة</h2>
+        <div class="field">
+          <label for="examInput">الرقم الامتحاني</label>
+          <input id="examInput" type="text" inputmode="numeric" placeholder="مثال: 123456" autocomplete="off" />
+          <button id="searchBtn" class="btn" type="button">عرض النتيجة</button>
+        </div>
+        <div class="hint">سيتم البحث حصراً حسب حقل <strong>الرقم الامتحاني</strong> بدون تكرار.</div>
+        <div id="homeMsg" class="not-found" style="display:none"></div>
+      </div>
+    </section>
+
+    <!-- الصفحة #2: عرض النتيجة + الطباعة -->
+    <section id="resultScreen" class="screen" aria-label="عرض النتيجة">
+      <div class="card" style="margin-bottom:12px">
+        <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="printBtn" class="btn success" type="button">طباعة النتيجة (تنزيل كصورة)</button>
+          <button id="backBtn" class="btn secondary" type="button">العودة للصفحة الرئيسية</button>
+        </div>
+      </div>
+
+      <div id="captureArea" class="card" aria-label="منطقة الطباعة">
+        <div class="result-header">
+          <img id="logoSmall" class="logo" alt="الشعار" />
+          <div class="result-title">
+            <h2 style="margin:0">نتيجة الطالب</h2>
+            <div class="school" id="schoolName">اسم المدرسة / —</div>
+            <div class="meta">
+              <div class="tag">الاسم: <span id="studentName">—</span></div>
+              <div class="tag">الرقم الامتحاني: <span id="studentExam">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <table aria-label="درجات الطالب">
+          <thead>
+            <tr>
+              <th>المادة</th>
+              <th>الدرجة</th>
+            </tr>
+          </thead>
+          <tbody id="gradesBody">
+            <!-- يملأ ديناميكياً -->
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>النتيجة النهائية</td>
+              <td id="finalResult">—</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="footer-note">الدور التمهيدي / 2025 – 2026</div>
+      </div>
+
+      <div class="footer-note">ملاحظة: عند الطباعة كصورة، يُفضّل أن تكون صورة الشعار محلية لتفادي قيود المتصفح (CORS).</div>
+    </section>
+
+    <!-- الصفحة #3: الشكل المرجعي (Template) لهيئة النتيجة -->
+    <section id="templateScreen" class="screen" aria-label="شكل النتيجة">
+      <div class="card">
+        <h2>شكل النتيجة (مرجع التصميم)</h2>
+        <p class="hint">هذا عرض شكلي يوضّح هيئة النتيجة الرسمية قبل تعبئتها بالبيانات.</p>
+        <div class="card" style="background:#fff">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+            <div style="width:72px;height:72px;border:1px solid var(--border);border-radius:8px;background:#fafafa;display:grid;place-items:center;color:var(--muted)">الشعار</div>
+            <div>
+              <div style="font-weight:700;color:var(--brand-600)">نتيجة الطالب</div>
+              <div style="color:var(--muted)">اسم المدرسة / …</div>
+              <div class="meta" style="margin-top:6px">
+                <div class="tag">الاسم: …</div>
+                <div class="tag">الرقم الامتحاني: …</div>
+              </div>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>المادة</th><th>الدرجة</th></tr></thead>
+            <tbody>
+              <tr><td>التربية الإسلامية</td><td>…</td></tr>
+              <tr><td>اللغة العربية</td><td>…</td></tr>
+              <tr><td>اللغة الإنكليزية</td><td>…</td></tr>
+              <tr><td>الرياضيات</td><td>…</td></tr>
+              <tr><td>الاجتماعيات</td><td>…</td></tr>
+              <tr><td>العلوم</td><td>…</td></tr>
+            </tbody>
+            <tfoot><tr><td>النتيجة النهائية</td><td>…</td></tr></tfoot>
+          </table>
+          <div class="footer-note">الدور التمهيدي / 2025 – 2026</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    /************ CONFIG ************/
+    // 1) ملف CSV
+    const CSV_FILE = "data.csv";
+
+    // 2) الشعار: استخدم محلي لتفادي CORS عند الحفظ كصورة
+    const USE_LOCAL_LOGO = true;
+    const LOCAL_LOGO_PATH = "logo.png";
+    // إن أردت استخدام رابط Google Drive ضع false هنا، ثم ضع الرابط في REMOTE_LOGO_URL
+    const REMOTE_LOGO_URL = "https://drive.google.com/uc?export=view&id=1J2Yzxza-gdhtlMB2xJ2IXB3NCiFvO5v1"; // رابط عرض مباشر إن أمكن
+
+    // 3) خريطة أسماء الأعمدة في ملف CSV (عدّلها لتطابق ملفك حرفيًا)
+    const COLS = {
+      EXAM: "الرقم الامتحاني",
+      NAME: "الاسم",
+      SCHOOL: "المدرسة",
+      ISL: "التربية الإسلامية",
+      AR: "اللغة العربية",
+      EN: "اللغة الإنكليزية",
+      MATH: "الرياضيات",
+      SOC: "الاجتماعيات",
+      SCI: "العلوم",
+      FINAL: "النتيجة النهائية"
+      // تستطيع إضافة أعمدة أخرى عند الحاجة
+    };
+
+    // 4) قائمة المواد وترتيبها لملء الجدول
+    const SUBJECTS = [
+      { key: "ISL", label: "التربية الإسلامية" },
+      { key: "AR",  label: "اللغة العربية" },
+      { key: "EN",  label: "اللغة الإنكليزية" },
+      { key: "MATH",label: "الرياضيات" },
+      { key: "SOC", label: "الاجتماعيات" },
+      { key: "SCI", label: "العلوم" }
+    ];
+
+    /************ DOM ************/
+    const screens = {
+      home: document.getElementById("homeScreen"),
+      result: document.getElementById("resultScreen"),
+      template: document.getElementById("templateScreen")
+    };
+    const examInput = document.getElementById("examInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const backBtn = document.getElementById("backBtn");
+    const printBtn = document.getElementById("printBtn");
+    const goHomeTop = document.getElementById("goHomeTop");
+    const goTemplateTop = document.getElementById("goTemplateTop");
+    const homeMsg = document.getElementById("homeMsg");
+
+    const elName = document.getElementById("studentName");
+    const elExam = document.getElementById("studentExam");
+    const elSchool = document.getElementById("schoolName");
+    const gradesBody = document.getElementById("gradesBody");
+    const finalResult = document.getElementById("finalResult");
+    const captureArea = document.getElementById("captureArea");
+
+    const logo = document.getElementById("logo");
+    const logoSmall = document.getElementById("logoSmall");
+
+    /************ Helpers ************/
+    function setScreen(which){
+      Object.values(screens).forEach(s => s.classList.remove("active"));
+      screens[which].classList.add("active");
+      window.scrollTo({top:0,behavior:"smooth"});
+    }
+
+    function loadLogo(){
+      if(USE_LOCAL_LOGO){
+        logo.src = LOCAL_LOGO_PATH;
+        logoSmall.src = LOCAL_LOGO_PATH;
+      }else{
+        logo.crossOrigin = "anonymous";
+        logoSmall.crossOrigin = "anonymous";
+        logo.src = REMOTE_LOGO_URL;
+        logoSmall.src = REMOTE_LOGO_URL;
+      }
+    }
+
+    function normalizeExam(v){
+      if(!v) return "";
+      // إزالة الفراغات وتحويل أرقام عربية/هندية إلى إنجليزية
+      const d = v.toString().trim()
+        .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+        .replace(/[^\d]/g, "");
+      return d;
+    }
+
+    function buildTableRow(subjectLabel, gradeVal){
+      const tr = document.createElement("tr");
+      const tdSub = document.createElement("td");
+      tdSub.textContent = subjectLabel;
+      const tdGrade = document.createElement("td");
+      tdGrade.textContent = gradeVal ?? "—";
+      tr.appendChild(tdSub);
+      tr.appendChild(tdGrade);
+      return tr;
+    }
+
+    function fillResultRow(row){
+      // تعبئة رأس البطاقة
+      elName.textContent = row[COLS.NAME] ?? "—";
+      elExam.textContent = row[COLS.EXAM] ?? "—";
+      elSchool.textContent = (row[COLS.SCHOOL] ? `اسم المدرسة / ${row[COLS.SCHOOL]}` : "اسم المدرسة / —");
+
+      // تعبئة جدول الدرجات
+      gradesBody.innerHTML = "";
+      SUBJECTS.forEach(sub=>{
+        const val = row[COLS[sub.key]] ?? "—";
+        gradesBody.appendChild(buildTableRow(sub.label, val));
+      });
+
+      // النتيجة النهائية
+      finalResult.textContent = row[COLS.FINAL] ?? "—";
+    }
+
+    function showNotFound(msg){
+      homeMsg.textContent = msg;
+      homeMsg.style.display = "block";
+    }
+
+    function clearNotFound(){
+      homeMsg.style.display = "none";
+      homeMsg.textContent = "";
+    }
+
+    function downloadCanvasAsPNG(canvas, filename){
+      canvas.toBlob(function(blob){
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }, "image/png", 1);
+    }
+
+    /************ Search Logic ************/
+    function findUniqueByExam(rows, exam){
+      // حصري وبدون تكرار: إذا تعدد — نأخذ أول سطر مطابق ونظهر تنبيه بسيط في الكونسول
+      const matches = rows.filter(r => normalizeExam(r[COLS.EXAM]) === exam);
+      if(matches.length > 1){
+        console.warn("تحذير: تكرر الرقم الامتحاني في أكثر من سجل. تم استخدام أول سطر مطابق.");
+      }
+      return matches[0] || null;
+    }
+
+    async function searchAndShow(exam){
+      clearNotFound();
+
+      try{
+        const csvText = await fetch(CSV_FILE, {cache: "no-store"}).then(r=>{
+          if(!r.ok) throw new Error("تعذر تحميل ملف البيانات");
+          return r.text();
+        });
+
+        const parsed = Papa.parse(csvText, {header:true, skipEmptyLines:true});
+        if(parsed.errors?.length){
+          console.error(parsed.errors);
+        }
+        const rows = parsed.data || [];
+        const row = findUniqueByExam(rows, exam);
+
+        if(!row){
+          showNotFound("لم يتم العثور على نتيجة لهذا الرقم الامتحاني. تأكد من الإدخال.");
+          return;
+        }
+
+        fillResultRow(row);
+        setScreen("result");
+      }catch(err){
+        console.error(err);
+        showNotFound("حدث خطأ أثناء تحميل البيانات. تأكد من وجود الملف data.csv بجانب صفحة HTML.");
+      }
+    }
+
+    /************ Events ************/
+    searchBtn.addEventListener("click", ()=>{
+      const exam = normalizeExam(examInput.value);
+      if(!exam){
+        showNotFound("يرجى إدخال الرقم الامتحاني بشكل صحيح.");
+        return;
+      }
+      searchAndShow(exam);
+    });
+
+    examInput.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter"){
+        searchBtn.click();
+      }
+    });
+
+    backBtn.addEventListener("click", ()=> setScreen("home"));
+    goHomeTop.addEventListener("click", ()=> setScreen("home"));
+    goTemplateTop.addEventListener("click", ()=> setScreen("template"));
+
+    printBtn.addEventListener("click", async ()=>{
+      // التقاط الصورة
+      // ملاحظة: إذا كان الشعار من مصدر خارجي بدون CORS سيمنع الحفظ
+      const canvas = await html2canvas(captureArea, {
+        scale: 2,
+        backgroundColor: "#ffffff",
+        useCORS: !USE_LOCAL_LOGO
+      });
+      const name = elName.textContent || "student";
+      const exam = elExam.textContent || "exam";
+      downloadCanvasAsPNG(canvas, `result_${exam}_${name}.png`);
+    });
+
+    // تحميل الشعار وتعيين الصفحة الرئيسية كبداية
+    loadLogo();
+    setScreen("home");
+  </script>
+</body>
+</html>
