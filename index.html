@@ -11,21 +11,20 @@
         overflow: hidden;
         font-family: "Cairo", sans-serif;
         color: white;
-        text-align: center;
         height: 100vh;
+        width: 100vw;
     }
 
-    /* الخلفية المتحركة مع الموبايل */
+    /* خلفية كاملة + حركة مع الموبايل */
     #bg {
         position: fixed;
         top: 0;
         left: 0;
-        width: 120%;
-        height: 120%;
+        width: 110vw;
+        height: 110vh;
         background-image: url('https://i.imgur.com/0kq4kQF.jpeg');
         background-size: cover;
         background-position: center;
-        transform: translate(-10%, -10%);
         transition: transform 0.1s linear;
         z-index: -1;
         filter: brightness(0.75);
@@ -36,77 +35,72 @@
         position: relative;
         width: 100%;
         height: 100%;
-        padding: 20px;
-        backdrop-filter: blur(3px);
+        padding: 25px;
+        box-sizing: border-box;
+        text-align: center;
     }
 
     h1 {
-        font-size: 34px;
-        margin-top: 10px;
+        font-size: 40px;
+        margin-top: 5px;
         color: #ffd700;
-        text-shadow: 0 0 10px #000;
-        animation: fadeIn 1.5s ease;
-    }
-
-    #cityName {
-        font-size: 22px;
-        margin-bottom: 10px;
-        color: #ffdd88;
-        text-shadow: 0 0 8px #000;
-    }
-
-    #dua {
-        font-size: 20px;
-        margin-bottom: 20px;
-        color: #cceeff;
-        text-shadow: 0 0 6px #000;
-    }
-
-    .box {
-        background: rgba(0,0,0,0.45);
-        padding: 20px;
-        border-radius: 15px;
-        margin-top: 15px;
-        animation: fadeIn 2s ease;
-    }
-
-    .big-time {
-        font-size: 46px;
-        font-weight: bold;
-        margin: 10px 0;
-        color: #00ffcc;
         text-shadow: 0 0 12px #000;
     }
 
-    .countdown {
-        font-size: 26px;
-        color: #ffddaa;
-        margin-bottom: 15px;
+    #cityName {
+        font-size: 28px;
+        margin-bottom: 10px;
+        color: #ffdd88;
         text-shadow: 0 0 10px #000;
     }
 
-    .prayer {
+    #dua {
         font-size: 24px;
-        margin: 6px 0;
+        margin-bottom: 20px;
+        color: #cceeff;
         text-shadow: 0 0 8px #000;
     }
 
-    button {
+    .box {
+        background: rgba(0,0,0,0.55);
+        padding: 25px;
+        border-radius: 20px;
         margin-top: 20px;
-        padding: 12px 20px;
-        font-size: 20px;
+        backdrop-filter: blur(4px);
+    }
+
+    .big-time {
+        font-size: 55px;
+        font-weight: bold;
+        margin: 10px 0;
+        color: #00ffcc;
+        text-shadow: 0 0 15px #000;
+    }
+
+    .countdown {
+        font-size: 30px;
+        color: #ffddaa;
+        margin-bottom: 20px;
+        text-shadow: 0 0 12px #000;
+    }
+
+    .prayer {
+        font-size: 30px;
+        margin: 8px 0;
+        text-shadow: 0 0 10px #000;
+    }
+
+    button {
+        margin-top: 25px;
+        padding: 15px 25px;
+        font-size: 24px;
         border: none;
-        border-radius: 10px;
+        border-radius: 12px;
         background: #00cc88;
         color: black;
         cursor: pointer;
         font-weight: bold;
-        box-shadow: 0 0 10px #000;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+        box-shadow: 0 0 12px #000;
     }
 </style>
 </head>
@@ -131,7 +125,7 @@
 </div>
 
 <div class="box">
-    <h2>أوقات الصلاة</h2>
+    <h2 style="font-size:32px; text-shadow:0 0 10px #000;">أوقات الصلاة</h2>
     <p class="prayer" id="fajr"></p>
     <p class="prayer" id="dhuhr"></p>
     <p class="prayer" id="asr"></p>
@@ -151,19 +145,21 @@ window.addEventListener("deviceorientation", function(event) {
     let x = event.gamma;
     let y = event.beta;
 
-    let moveX = (x / 45) * 10;
-    let moveY = (y / 45) * 10;
+    let moveX = (x / 45) * 5;
+    let moveY = (y / 45) * 5;
 
     document.getElementById("bg").style.transform =
         `translate(${moveX}%, ${moveY}%) scale(1.1)`;
 });
 
-/* تحويل الوقت إلى AM/PM */
-function toAMPM(time) {
+/* تحويل الوقت إلى صباحًا / مساءً */
+function toArabic(time) {
     let [h, m] = time.split(":");
     h = parseInt(h);
-    let suffix = h >= 12 ? "PM" : "AM";
+
+    let suffix = h >= 12 ? "مساءً" : "صباحًا";
     h = (h % 12) || 12;
+
     return `${h}:${m} ${suffix}`;
 }
 
@@ -210,25 +206,25 @@ function loadPrayerTimes(lat, lon) {
             const t = data.data.timings;
 
             document.getElementById("suhur").innerHTML =
-                "السحور: " + toAMPM(t.Imsak);
+                "السحور: " + toArabic(t.Imsak);
 
             document.getElementById("iftar").innerHTML =
-                "الإفطار: " + toAMPM(t.Maghrib);
+                "الإفطار: " + toArabic(t.Maghrib);
 
             document.getElementById("fajr").innerHTML =
-                "الفجر: " + toAMPM(t.Fajr);
+                "الفجر: " + toArabic(t.Fajr);
 
             document.getElementById("dhuhr").innerHTML =
-                "الظهر: " + toAMPM(t.Dhuhr);
+                "الظهر: " + toArabic(t.Dhuhr);
 
             document.getElementById("asr").innerHTML =
-                "العصر: " + toAMPM(t.Asr);
+                "العصر: " + toArabic(t.Asr);
 
             document.getElementById("maghrib").innerHTML =
-                "المغرب: " + toAMPM(t.Maghrib);
+                "المغرب: " + toArabic(t.Maghrib);
 
             document.getElementById("isha").innerHTML =
-                "العشاء: " + toAMPM(t.Isha);
+                "العشاء: " + toArabic(t.Isha);
 
             countdown(t.Imsak, "countdownSuhur");
             countdown(t.Maghrib, "countdownIftar");
@@ -258,4 +254,3 @@ navigator.geolocation.getCurrentPosition(
 
 </body>
 </html>
-
