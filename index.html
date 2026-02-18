@@ -1,649 +1,140 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>نظام عرض النتائج - الدور التمهيدي 2025-2026</title>
-  <meta name="color-scheme" content="light only" />
-
-  <!-- خطوط عربية مناسبة لواجهة رسمية -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <!-- مكتبات للقراءة من CSV والتقاط صورة الصفحة -->
-  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-
-  <style>
-    :root{
-      --brand:#0d47a1;
-      --brand-600:#0b3d8f;
-      --accent:#c62828;
-      --ink:#1b1f23;
-      --muted:#5b6470;
-      --border:#e2e6ea;
-      --bg:#ffffff;
-      --card:#f8fafc;
-      --success:#1b5e20;
-
-      /* ← تحكم بحجم بانر الشعار في الرئيسية */
-      --hero-logo-height: 600px;  /* كبّر/صغّر */
-      --hero-logo-max: 600px;
+<meta charset="UTF-8">
+<title>إمساكية رمضان</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f4f4;
+        padding: 20px;
+        text-align: center;
     }
-
-    html,body{height:100%;}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--ink);
-      font-family:"Noto Naskh Arabic", system-ui, -apple-system, Segoe UI, Arial, sans-serif;
-      line-height:1.6;
-      overflow-x:hidden; /* منع تمرير أفقي على الموبايل */
+    h1 { font-size: 28px; margin-bottom: 10px; }
+    .big-time {
+        font-size: 32px;
+        font-weight: bold;
+        margin: 10px 0;
+        color: #b30000;
     }
-
-    .container{
-      max-width:980px;
-      margin-inline:auto;
-      padding:24px 16px 48px;
+    .box {
+        background: white;
+        padding: 15px;
+        margin-top: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px #ccc;
     }
-
-    /* هيدر مبسّط (لا يحتوي الشعار) */
-    header{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:8px 0;
-      border-bottom:1px solid var(--border);
-      margin-bottom:12px;
+    #countdownSuhur, #countdownIftar {
+        font-size: 26px;
+        color: #006600;
+        margin-top: 10px;
     }
-
-    /* بانر الشعار كامل العرض في الرئيسية */
-    .hero-logo-wrap{
-      width:calc(100% + 32px);
-      margin-inline:-16px;
-      margin-top:8px;
-      margin-bottom:8px;
-      background:#fff;
-      border-bottom:1px solid var(--border);
-    }
-    .hero-logo{
-      width:100%;
-      height:var(--hero-logo-height);   /* ← هذا هو الارتفاع المتحكَّم به */
-      max-height:var(--hero-logo-max);
-      display:block;
-      object-fit:contain;               /* يحافظ على نسبة الشعار */
-      background:#fff;
-      padding:10px;                     /* مسافة داخلية بسيطة */
-    }
-
-    /* العنوان/النص تحت الشعار (بالمنتصف) */
-    .titles{
-      width:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      margin-top:12px;
-      margin-bottom:12px;
-    }
-    .titles h1{
-      margin:0;
-      font-size:1.8rem;
-      font-weight:700;
-      color:var(--brand);
-    }
-    .titles .sub{
-      margin-top:6px;
-      font-size:1.05rem;
-      color:var(--muted);
-    }
-
-    /* بطاقات */
-    .card{
-      background:var(--card);
-      border:1px solid var(--border);
-      border-radius:12px;
-      padding:20px;
-      box-shadow:0 6px 20px rgba(13,71,161,0.05);
-    }
-    .card h2{ margin-top:0;font-size:1.2rem;color:var(--brand-600); }
-
-    /* أزرار */
-    .btn{
-      appearance:none;border:none;border-radius:10px;
-      padding:10px 16px;font-weight:700;cursor:pointer;
-      background:var(--brand);color:#fff;
-      transition:transform .06s ease, box-shadow .2s ease, background .2s ease;
-      box-shadow:0 4px 12px rgba(13,71,161,0.18);
-    }
-    .btn:hover{background:var(--brand-600);transform:translateY(-1px);}
-    .btn.secondary{ background:#ffffff;color:var(--brand);border:1px solid var(--brand);box-shadow:none; }
-    .btn.success{background:var(--success);}
-
-    /* حقول الإدخال */
-    .field{
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-      margin:8px 0 16px;
-    }
-    .field label{min-width:140px;color:var(--muted)}
-    .field input[type="text"]{
-      flex:1 1 280px;
-      padding:10px 12px;border:1px solid var(--border);border-radius:10px;
-      font-size:1rem;direction:ltr;text-align:start;
-    }
-    .hint{color:var(--muted);font-size:0.9rem}
-
-    /* أقسام/صفحات */
-    .screen{display:none;}
-    .screen.active{display:block;animation:fade .2s ease}
-    @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-
-    /* جدول الدرجات */
-    table{
-      width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;
-      border:1px solid var(--border);
-    }
-    thead th{
-      background:linear-gradient(180deg,#e9f0fb,#dbe7fb);
-      color:#0b3d8f;font-weight:700;padding:10px;border-bottom:1px solid var(--border);
-      text-align:center;
-    }
-    tbody td{ padding:10px;border-bottom:1px solid var(--border);text-align:center; }
-    tbody tr:last-child td{border-bottom:none;}
-    tfoot td{
-      background:#f3f6fb;font-weight:700;color:#0b3d8f;padding:12px;border-top:1px solid var(--border);text-align:center;
-    }
-
-    /* تلوين مربعات الدرجات حسب النجاح/الرسوب */
-    .grade-cell{
-      font-weight:700;
-      border-left:1px solid var(--border);
-      transition:background .15s ease, color .15s ease;
-    }
-    .grade-pass{ background:#e8f5e9; color:#1b5e20; } /* أخضر فاتح (>= 50) */
-    .grade-fail{ background:#ffebee; color:#b71c1c; } /* أحمر فاتح (< 50 أو قيمة نصية) */
-
-    .result-title{
-      display:flex;flex-direction:column;gap:4px;margin:6px 0 14px;
-    }
-    .result-title .school{color:var(--muted);font-size:0.95rem}
-    .meta{ display:flex;gap:14px;flex-wrap:wrap;color:var(--ink);margin:6px 0 2px; }
-    .meta .tag{ background:#fff;border:1px solid var(--border);border-radius:999px;padding:6px 12px;font-weight:700; }
-
-    .not-found{
-      background:#fff7f7;border:1px solid #ffd0d0;color:#8b0000;border-radius:12px;padding:12px;margin:8px 0 0;
-    }
-
-    /* مساحة التقاط الصورة (نتيجة) */
-    #captureArea{
-      padding:18px;border:1px dashed var(--border);border-radius:12px;background:#ffffff;
-    }
-
-    /* شعار خاص بالصورة المصدّرة فقط: مخفي على الشاشة */
-    .export-logo{
-      display:none;                 /* مخفي أثناء العرض */
-      width:auto;
-      height:auto;                  /* بدون تمطيط */
-      max-width:380px;              /* غيّرها لتكبير/تصغير الشعار في الصورة */
-      max-height:280px;
-      margin:5px auto 12px;         /* تمركز أفقياً ومسافة تحت */
-      object-fit:contain;
-    }
-
-    /* نص إضافي يظهر فقط داخل الصورة المصدّرة (أسفل "الدور التمهيدي") */
-    .export-extra{
-      display:none;                 /* مخفي أثناء العرض */
-      text-align:center;
-      margin-top:6px;
-      color:var(--muted);
-      font-size:0.95rem;
-      line-height:1.5;
-      padding:0 8px;
-    }
-
-    .footer-note{
-      margin-top:10px;color:var(--muted);font-size:0.85rem;text-align:center;
-    }
-
-    /* شريط تنقّل علوي بسيط */
-    .topbar{
-      display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;
-    }
-    .topbar .title{font-weight:700;color:var(--brand-600)}
-    .topbar .actions{display:flex;gap:8px;flex-wrap:wrap}
-
-    /* تحسينات موبايل */
-    @media (max-width: 580px){
-      .hero-logo{ height:270px; }
-      .titles h1{ font-size:1.5rem; }
-      .field label{min-width:auto;width:100%;}
-      .field input[type="text"]{flex:1 1 100%;}
-      .container{padding:16px 12px 32px;}
-      #captureArea{padding:12px;}
-    }
-  </style>
+</style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <!-- الهيدر هنا فقط للفاصل العلوي (لا شعار بداخله) -->
-    </header>
 
-    <!-- بانر الشعار كامل العرض في الرئيسية -->
-    <div class="hero-logo-wrap">
-      <img id="heroLogo" class="hero-logo" src="" alt="الشعار الكامل" />
-    </div>
+<h1>إمساكية رمضان حسب موقعك</h1>
+<div id="today"></div>
 
-    <!-- العنوان والنص تحت الشعار (متمركز 100%) -->
-    <div class="titles">
-      <h1>نظام عرض نتائج التلاميذ</h1>
-      <div class="sub">الدور التمهيدي للعام الدراسي/ 2025 – 2026</div>
-    </div>
+<div class="box">
+    <div class="big-time" id="suhur">السحور: ...</div>
+    <div id="countdownSuhur"></div>
 
-    <!-- شريط علوي -->
-    <div class="topbar">
-      <div class="title">واجهة رسمية</div>
-      <div class="actions">
-        <button class="btn secondary" id="goHomeTop" type="button">الصفحة الرئيسية</button>
-        <button class="btn" id="goTemplateTop" type="button">شكل النتيجة</button>
-      </div>
-    </div>
+    <div class="big-time" id="iftar">الإفطار: ...</div>
+    <div id="countdownIftar"></div>
+</div>
 
-    <!-- الصفحة #1: الرئيسية / الترحيب + البحث -->
-    <section id="homeScreen" class="screen active" aria-label="الصفحة الرئيسية">
-      <div class="card">
-        <h2>أدخل الرقم الامتحاني لعرض النتيجة</h2>
-        <div class="field">
-          <label for="examInput">الرقم الامتحاني</label>
-          <input id="examInput" type="text" inputmode="numeric" placeholder="مثال: 123456" autocomplete="off" />
-          <button id="searchBtn" class="btn" type="button">عرض النتيجة</button>
-        </div>
-        <div class="hint">سيتم البحث حصراً حسب حقل <strong>الرقم الامتحاني</strong> بدون تكرار.</div>
-        <div id="homeMsg" class="not-found" style="display:none"></div>
-      </div>
-    </section>
+<div class="box">
+    <h2>أوقات الصلاة</h2>
+    <p id="fajr"></p>
+    <p id="dhuhr"></p>
+    <p id="asr"></p>
+    <p id="maghrib"></p>
+    <p id="isha"></p>
+</div>
 
-    <!-- الصفحة #2: عرض النتيجة + الطباعة -->
-    <section id="resultScreen" class="screen" aria-label="عرض النتيجة">
-      <div class="card" style="margin-bottom:12px">
-        <div class="actions" style="display:flex;gap:8px;flex-wrap:wrap">
-          <button id="printBtn" class="btn success" type="button">طباعة النتيجة (تنزيل كصورة)</button>
-          <button id="backBtn" class="btn secondary" type="button">العودة للصفحة الرئيسية</button>
-        </div>
-      </div>
+<button onclick="enableAudio()">تفعيل صوت الأذان</button>
 
-      <div id="captureArea" class="card" aria-label="منطقة الطباعة">
-        <!-- شعار خاص بالتصدير فقط: مخفي على الشاشة، يظهر فقط داخل الصورة المصدّرة -->
-        <img id="exportLogo" class="export-logo" alt="الشعار (تصدير فقط)" />
+<audio id="adhanSound" src="https://download.quranicaudio.com/quran/abdul_basit_murattal/001.mp3"></audio>
 
-        <!-- معلومات الطالب -->
-        <div class="result-title">
-          <h2 style="margin:0">نتيجة الطالب</h2>
-          <div class="school" id="schoolName">اسم المدرسة / —</div>
-          <div class="meta">
-            <div class="tag">اسم التلميذ: <span id="studentName">—</span></div>
-            <div class="tag">الرقم الامتحاني: <span id="studentExam">—</span></div>
-          </div>
-        </div>
-
-        <table aria-label="درجات الطالب">
-          <thead>
-            <tr><th>المادة</th><th>الدرجة</th></tr>
-          </thead>
-          <tbody id="gradesBody"><!-- يملأ ديناميكياً --></tbody>
-          <tfoot>
-            <tr>
-              <td>النتيجـــــــــــة</td>
-              <td id="finalResult">—</td>
-            </tr>
-          </tfoot>
-        </table>
-
-        <div class="footer-note">الدور التمهيدي / 2025 – 2026</div>
-
-        <!-- نص إضافي يظهر فقط داخل الصورة المصدّرة (أسفل "الدور التمهيدي") -->
-        <div id="exportExtra" class="export-extra">
-         هذه الوثيقة للعرض فقط ولا تعتبر وثيقة رسيمة - تصميم وتنفيذ المهندس امين محمود
-        </div>
-      </div>
-
-      <div class="footer-note">تصميم وتنفيذ المهندس امين محمود</div>
-    </section>
-
-    <!-- الصفحة #3: الشكل المرجعي (Template) لهيئة النتيجة -->
-    <section id="templateScreen" class="screen" aria-label="شكل النتيجة">
-      <div class="card">
-        <h2>شكل النتيجة (مرجع التصميم)</h2>
-        <p class="hint">هذا عرض شكلي يوضّح الهيئة العامة قبل تعبئتها بالبيانات.</p>
-        <div class="card" style="background:#fff">
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
-            <div style="width:72px;height:72px;border:1px solid var(--border);border-radius:8px;background:#fafafa;display:grid;place-items:center;color:var(--muted)">الشعار</div>
-            <div>
-              <div style="font-weight:700;color:var(--brand-600)">نتيجة الطالب</div>
-              <div style="color:var(--muted)">اسم المدرسة / …</div>
-              <div class="meta" style="margin-top:6px">
-                <div class="tag">اسم التلميذ: …</div>
-                <div class="tag">الرقم الامتحاني: …</div>
-              </div>
-            </div>
-          </div>
-          <table>
-            <thead><tr><th>المادة</th><th>الدرجة</th></tr></thead>
-            <tbody>
-              <tr><td>التربية الإسلامية</td><td>…</td></tr>
-              <tr><td>اللغة العربية</td><td>…</td></tr>
-              <tr><td>اللغة الإنكليزية</td><td>…</td></tr>
-              <tr><td>الرياضيات</td><td>…</td></tr>
-              <tr><td>الاجتماعيات</td><td>…</td></tr>
-              <tr><td>العلوم</td><td>…</td></tr>
-            </tbody>
-            <tfoot><tr><td>النتيجة النهائية</td><td>…</td></tr></tfoot>
-          </table>
-          <div class="footer-note">الدور التمهيدي / 2025 – 2026</div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <script>
-/************ CONFIG ************/
-// 1) ملف CSV
-const CSV_FILE = "data.csv";
-
-// 2) الشعار: استخدم محلي لتفادي CORS عند الحفظ كصورة
-const USE_LOCAL_LOGO = true;               // إبقه true
-const LOCAL_LOGO_PATH = "logo.png";        // ← اسم ملف الشعار المحلي
-// (لا حاجة لتعديل التالي إن بقيت على الشعار المحلي)
-const REMOTE_LOGO_URL = "https://drive.google.com/uc?export=view&id=FILE_ID";
-
-// 3) خريطة أسماء الأعمدة في ملف CSV (طابق ملفك حرفيًا)
-const COLS = {
-  EXAM: "الرقم الامتحاني",
-  NAME: "اسم التلميذ",
-  SCHOOL: "المدرسة",
-  ISL: "التربية الإسلامية",
-  AR: "اللغة العربية",
-  EN: "اللغة الإنكليزية",
-  MATH: "الرياضيات",
-  SOC: "الاجتماعيات",
-  SCI: "العلوم",
-  FINAL: "النتيجـــــــــــة"
-};
-
-// 4) قائمة المواد وترتيبها لملء الجدول
-const SUBJECTS = [
-  { key: "ISL", label: "التربية الإسلامية" },
-  { key: "AR",  label: "اللغة العربية" },
-  { key: "EN",  label: "اللغة الإنكليزية" },
-  { key: "MATH",label: "الرياضيات" },
-  { key: "SOC", label: "الاجتماعيات" },
-  { key: "SCI", label: "العلوم" }
-];
-
-/************ DOM ************/
-const screens = {
-  home: document.getElementById("homeScreen"),
-  result: document.getElementById("resultScreen"),
-  template: document.getElementById("templateScreen")
-};
-const examInput = document.getElementById("examInput");
-const searchBtn = document.getElementById("searchBtn");
-const backBtn = document.getElementById("backBtn");
-const printBtn = document.getElementById("printBtn");
-const goHomeTop = document.getElementById("goHomeTop");
-const goTemplateTop = document.getElementById("goTemplateTop");
-const homeMsg = document.getElementById("homeMsg");
-
-const elName = document.getElementById("studentName");
-const elExam = document.getElementById("studentExam");
-const elSchool = document.getElementById("schoolName");
-const gradesBody = document.getElementById("gradesBody");
-const finalResult = document.getElementById("finalResult");
-const captureArea = document.getElementById("captureArea");
-
-/* عناصر الشعار والنص للتصدير */
-const heroLogo = document.getElementById("heroLogo");       // يظهر في الرئيسية فقط
-const exportLogo = document.getElementById("exportLogo");   // يظهر فقط داخل الصورة المصدّرة
-const exportExtra = document.getElementById("exportExtra"); // نص إضافي للصورة فقط
-
-/************ Helpers ************/
-function setScreen(which){
-  Object.values(screens).forEach(s => s.classList.remove("active"));
-  screens[which].classList.add("active");
-  window.scrollTo({top:0,behavior:"smooth"});
+<script>
+function formatTime(t) {
+    return t.replace(" (AST)", "");
 }
 
-function loadLogo(){
-  const src = USE_LOCAL_LOGO ? LOCAL_LOGO_PATH : REMOTE_LOGO_URL;
+let prayerTimes = {};
+let audioEnabled = false;
 
-  // رئيسية: يظهر الشعار
-  if (heroLogo){
-    if(!USE_LOCAL_LOGO) heroLogo.crossOrigin = "anonymous";
-    heroLogo.src = src;
-  }
-
-  // شعار التصدير فقط (مخفي على الشاشة)
-  if (exportLogo){
-    if(!USE_LOCAL_LOGO) exportLogo.crossOrigin = "anonymous";
-    exportLogo.src = src;
-  }
-}
-
-function normalizeDigits(str){
-  // يحوّل الأرقام العربية/الهندية إلى إنجليزية
-  if (str === null || str === undefined) return "";
-  return String(str).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
-}
-
-function classifyGrade(val){
-  // 50+ => pass (أخضر)، أقل من 50 أو قيمة نصية => fail (أحمر)
-  const s = String(val ?? "").trim();
-  if (!s) return "fail"; // فارغة تُعد رسوب
-  const num = parseFloat(normalizeDigits(s).replace(/[^\d.]/g, ""));
-  if (!Number.isFinite(num)) return "fail"; // قيمة نصية مثل "غائب"
-  return (num >= 50) ? "pass" : "fail";
-}
-
-function buildTableRow(subjectLabel, gradeVal){
-  const tr = document.createElement("tr");
-  const tdSub = document.createElement("td");
-  tdSub.textContent = subjectLabel;
-
-  const tdGrade = document.createElement("td");
-  tdGrade.classList.add("grade-cell");
-  tdGrade.textContent = (gradeVal ?? "—");
-
-  // تلوين حسب القاعدة المطلوبة
-  const cls = classifyGrade(gradeVal);
-  if (cls === "pass") tdGrade.classList.add("grade-pass");
-  else tdGrade.classList.add("grade-fail");
-
-  tr.appendChild(tdSub);
-  tr.appendChild(tdGrade);
-  return tr;
-}
-
-function fillResultRow(row){
-  // تعبئة رأس البطاقة
-  elName.textContent = row[COLS.NAME] ?? "—";
-  elExam.textContent = row[COLS.EXAM] ?? "—";
-  elSchool.textContent = (row[COLS.SCHOOL] ? `اسم المدرسة / ${row[COLS.SCHOOL]}` : "اسم المدرسة / —");
-
-  // تعبئة جدول الدرجات (مع التلوين)
-  gradesBody.innerHTML = "";
-  SUBJECTS.forEach(sub=>{
-    const val = row[COLS[sub.key]] ?? "—";
-    gradesBody.appendChild(buildTableRow(sub.label, val));
-  });
-
-  // النتيجة النهائية (دون تلوين خاص)
-  finalResult.textContent = row[COLS.FINAL] ?? "—";
-}
-
-function showNotFound(msg){
-  homeMsg.textContent = msg;
-  homeMsg.style.display = "block";
-}
-
-function clearNotFound(){
-  homeMsg.style.display = "none";
-  homeMsg.textContent = "";
-}
-
-function normalizeExam(v){
-  if(!v) return "";
-  // إزالة الفراغات وتحويل أرقام عربية/هندية إلى إنجليزية
-  const d = v.toString().trim()
-    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
-    .replace(/[^\d]/g, "");
-  return d;
-}
-
-/** تنزيل Blob كملف */
-function downloadBlobAsFile(blob, filename){
-  const link = document.createElement("a");
-  link.href = URL.createObjectURL(blob);
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(link.href);
-}
-
-/** تصغير Canvas إلى عرض أقصى (يحافظ على النسبة) */
-function downscaleCanvas(srcCanvas, maxWidth){
-  const w = srcCanvas.width;
-  const h = srcCanvas.height;
-  if (w <= maxWidth) return srcCanvas; // لا حاجة للتصغير
-
-  const scale = maxWidth / w;
-  const targetW = Math.round(w * scale);
-  const targetH = Math.round(h * scale);
-
-  const off = document.createElement("canvas");
-  off.width = targetW;
-  off.height = targetH;
-  const ctx = off.getContext("2d");
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(srcCanvas, 0, 0, targetW, targetH);
-  return off;
-}
-
-/************ Search Logic ************/
-function findUniqueByExam(rows, exam){
-  // حصري وبدون تكرار: إذا تعدد — نأخذ أول سطر مطابق ونظهر تحذير بسيط
-  const matches = rows.filter(r => normalizeExam(r[COLS.EXAM]) === exam);
-  if(matches.length > 1){
-    console.warn("تحذير: تكرر الرقم الامتحاني في أكثر من سجل. تم استخدام أول سطر مطابق.");
-  }
-  return matches[0] || null;
-}
-
-async function searchAndShow(exam){
-  clearNotFound();
-
-  try{
-    const csvText = await fetch(CSV_FILE, {cache: "no-store"}).then(r=>{
-      if(!r.ok) throw new Error("تعذر تحميل ملف البيانات");
-      return r.text();
+function enableAudio() {
+    audioEnabled = true;
+    document.getElementById("adhanSound").play().then(() => {
+        document.getElementById("adhanSound").pause();
+        alert("تم تفعيل صوت الأذان");
     });
-
-    const parsed = Papa.parse(csvText, {header:true, skipEmptyLines:true});
-    if(parsed.errors?.length){
-      console.error(parsed.errors);
-    }
-    const rows = parsed.data || [];
-    const row = findUniqueByExam(rows, exam);
-
-    if(!row){
-      showNotFound("لم يتم العثور على نتيجة لهذا الرقم الامتحاني. تأكد من الإدخال.");
-      return;
-    }
-
-    fillResultRow(row);
-    setScreen("result");
-  }catch(err){
-    console.error(err);
-    showNotFound("حدث خطأ أثناء تحميل البيانات. تأكد من وجود الملف data.csv بجانب صفحة HTML.");
-  }
 }
 
-/************ Events ************/
-searchBtn.addEventListener("click", ()=>{
-  const exam = normalizeExam(examInput.value);
-  if(!exam){
-    showNotFound("يرجى إدخال الرقم الامتحاني بشكل صحيح.");
-    return;
-  }
-  searchAndShow(exam);
-});
-
-examInput.addEventListener("keydown", (e)=>{
-  if(e.key === "Enter"){
-    searchBtn.click();
-  }
-});
-
-backBtn.addEventListener("click", ()=> setScreen("home"));
-goHomeTop.addEventListener("click", ()=> setScreen("home"));
-goTemplateTop.addEventListener("click", ()=> setScreen("template"));
-
-printBtn.addEventListener("click", async ()=>{
-  try{
-    // 1) أظهر الشعار + النص الإضافي مؤقتًا قبل الالتقاط (يظهران في الصورة فقط)
-    let prevLogoDisplay = "", prevExtraDisplay = "";
-    if (exportLogo){
-      prevLogoDisplay = exportLogo.style.display;
-      exportLogo.style.display = "block";
-
-      // تأكد من تحميل صورة الشعار قبل الالتقاط
-      await new Promise(resolve => {
-        if (exportLogo.complete) return resolve();
-        const onLoad = () => { exportLogo.removeEventListener('load', onLoad); resolve(); };
-        exportLogo.addEventListener('load', onLoad);
-        setTimeout(resolve, 80); // احتياط لو كان cached
-      });
+function playAdhan() {
+    if (audioEnabled) {
+        document.getElementById("adhanSound").play();
     }
-    if (exportExtra){
-      prevExtraDisplay = exportExtra.style.display;
-      exportExtra.style.display = "block";
-    }
+}
 
-    // 2) التقاط بجودة مناسبة لتقليل حجم الملف النهائي
-    const canvas = await html2canvas(captureArea, {
-      scale: Math.min(1.25, window.devicePixelRatio || 1), // جرّب 1.0 إذا تريد حجم أصغر
-      backgroundColor: "#ffffff",
-      useCORS: !USE_LOCAL_LOGO
-    });
+function countdown(targetTime, elementId) {
+    setInterval(() => {
+        let now = new Date();
+        let target = new Date(now.toDateString() + " " + targetTime);
 
-    // 3) تصغير أبعاد الصورة قبل الحفظ (يضبط الحجم النهائي بشكل كبير)
-    const MAX_EXPORT_WIDTH = 1000; // ← غيّرها (مثلاً 900 / 800) لتصغير الحجم أكثر
-    const resized = downscaleCanvas(canvas, MAX_EXPORT_WIDTH);
+        if (target < now) return;
 
-    // 4) تحويل إلى JPEG بجودة متحكم بها (أصغر من PNG بكثير)
-    const JPEG_QUALITY = 0.8; // ← 0.75 أو 0.7 يعطي حجم أصغر
-    resized.toBlob((blob)=>{
-      const name = (elName.textContent || "student").replace(/[^\w\u0600-\u06FF\s-]/g,'');
-      const exam = (elExam.textContent || "exam").replace(/[^\w-]/g,'');
-      downloadBlobAsFile(blob, `result_${exam}_${name}.jpg`);
-    }, "image/jpeg", JPEG_QUALITY);
+        let diff = target - now;
 
-    // 5) أخفِ الشعار والنص مجددًا
-    if (exportLogo)  exportLogo.style.display  = prevLogoDisplay || "none";
-    if (exportExtra) exportExtra.style.display = prevExtraDisplay || "none";
+        let h = Math.floor(diff / (1000 * 60 * 60));
+        let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        let s = Math.floor((diff % (1000 * 60)) / 1000);
 
-  }catch(err){
-    if (exportLogo)  exportLogo.style.display  = "none";
-    if (exportExtra) exportExtra.style.display = "none";
-    console.error(err);
-    alert("تعذر إنشاء الصورة. تأكد من وجود الشعار محليًا (logo.png) والبيانات.");
-  }
-});
+        document.getElementById(elementId).innerHTML =
+            `متبقي: ${h} ساعة ${m} دقيقة ${s} ثانية`;
 
-// تحميل الشعار وتعيين الصفحة الرئيسية كبداية
-loadLogo();
-setScreen("home");
-  </script>
+        if (diff < 1000) playAdhan();
+    }, 1000);
+}
+
+function loadPrayerTimes(lat, lon) {
+    const api = `https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lon}&method=5`;
+
+    fetch(api)
+        .then(res => res.json())
+        .then(data => {
+            const t = data.data.timings;
+            prayerTimes = t;
+
+            document.getElementById("suhur").innerHTML = "السحور: " + formatTime(t.Imsak);
+            document.getElementById("iftar").innerHTML = "الإفطار: " + formatTime(t.Maghrib);
+
+            document.getElementById("fajr").innerHTML = "الفجر: " + formatTime(t.Fajr);
+            document.getElementById("dhuhr").innerHTML = "الظهر: " + formatTime(t.Dhuhr);
+            document.getElementById("asr").innerHTML = "العصر: " + formatTime(t.Asr);
+            document.getElementById("maghrib").innerHTML = "المغرب: " + formatTime(t.Maghrib);
+            document.getElementById("isha").innerHTML = "العشاء: " + formatTime(t.Isha);
+
+            countdown(t.Imsak, "countdownSuhur");
+            countdown(t.Maghrib, "countdownIftar");
+        });
+}
+
+function showToday() {
+    const days = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+    const d = new Date();
+    document.getElementById("today").innerHTML = "اليوم: " + days[d.getDay()];
+}
+
+showToday();
+
+navigator.geolocation.getCurrentPosition(
+    pos => loadPrayerTimes(pos.coords.latitude, pos.coords.longitude),
+    err => alert("يجب السماح بتحديد الموقع ليعمل التطبيق")
+);
+</script>
+
 </body>
 </html>
