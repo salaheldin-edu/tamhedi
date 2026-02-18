@@ -212,13 +212,23 @@
     <audio id="adhanAudio" src="https://media.blubrry.com/muslim_central_quran/podcasts.qurancentral.com/adhan/adhan-makkah-2.mp3"></audio>
 
 <script>
-    // 1. البيانات مع "التصحيح التلقائي" لكل محافظة (Offsets)
-    // التنسيق: { corrections: { Fajr, Dhuhr, Asr, Maghrib, Isha } } بالدقائق
+    // 1. البيانات مع التصحيح التلقائي الدقيق (Offsets)
     const cities = [
-        // أربيل: تم ضبطها بدقة لتطابق صورة الإمساكية (زيادة ونقصان الدقائق)
-        { name: "أربيل", lat: 36.1901, lng: 44.0091, corrections: { Fajr: 9, Dhuhr: 5, Asr: 0, Maghrib: 6, Isha: -10 } },
+        // أربيل: تعديل دقيق جداً بناءً على الصورة
+        { 
+            name: "أربيل", 
+            lat: 36.1901, 
+            lng: 44.0091, 
+            corrections: { 
+                Fajr: 10,    // تعديل الفجر ليطابق 05:27
+                Dhuhr: 6,    // تعديل الظهر ليطابق 12:26
+                Asr: 1,      // تعديل طفيف للعصر
+                Maghrib: 6,  // المغرب مضبوط
+                Isha: -10    // العشاء مضبوط
+            } 
+        },
         
-        // باقي المحافظات: تقديرات قياسية (يمكن تعديلها لو توفرت صور لها)
+        // باقي المحافظات: تقديرات قياسية للعراق
         { name: "بغداد", lat: 33.3152, lng: 44.3661, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
         { name: "البصرة", lat: 30.5081, lng: 47.7835, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
         { name: "الموصل", lat: 36.3400, lng: 43.1300, corrections: { Fajr: 5, Dhuhr: 3, Asr: 0, Maghrib: 4, Isha: 0 } },
@@ -234,8 +244,8 @@
         { name: "ذي قار", lat: 31.0400, lng: 46.2500, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
         { name: "المثنى", lat: 31.3200, lng: 45.2800, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
         { name: "القادسية", lat: 31.9900, lng: 44.9300, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
-        { name: "السليمانية", lat: 35.5500, lng: 45.4500, corrections: { Fajr: 8, Dhuhr: 5, Asr: 0, Maghrib: 6, Isha: -10 } }, // تشبه أربيل غالباً
-        { name: "دهوك", lat: 36.8600, lng: 42.9900, corrections: { Fajr: 9, Dhuhr: 5, Asr: 0, Maghrib: 6, Isha: -10 } }  // تشبه أربيل غالباً
+        { name: "السليمانية", lat: 35.5500, lng: 45.4500, corrections: { Fajr: 8, Dhuhr: 5, Asr: 0, Maghrib: 6, Isha: -10 } }, 
+        { name: "دهوك", lat: 36.8600, lng: 42.9900, corrections: { Fajr: 9, Dhuhr: 5, Asr: 0, Maghrib: 6, Isha: -10 } }
     ];
 
     const islamicData = {
