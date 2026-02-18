@@ -13,27 +13,26 @@
 
     body {
         font-family: "Cairo", sans-serif;
-        background: #0a1a33; /* نيلي غامق */
+        background: #0a1a33;
         color: white;
         overflow-y: auto;
-        padding: 10px;
+        width: 100%;
     }
 
     #content {
         width: 100%;
-        max-width: 650px;
-        margin: auto;
+        padding: 0;
     }
 
     h1 {
-        font-size: clamp(34px, 8vw, 55px);
+        font-size: clamp(38px, 9vw, 60px);
         text-align: center;
-        margin-bottom: 10px;
+        margin: 15px 0 5px 0;
         font-weight: bold;
     }
 
     #cityName {
-        font-size: clamp(26px, 7vw, 40px);
+        font-size: clamp(28px, 7vw, 42px);
         text-align: center;
         margin-bottom: 10px;
     }
@@ -41,77 +40,83 @@
     #dua {
         background: white;
         color: red;
-        padding: 15px;
-        border-radius: 12px;
-        font-size: clamp(22px, 6vw, 34px);
-        text-align: center;
-        margin-bottom: 25px;
-        font-weight: bold;
-    }
-
-    .box {
-        background: rgba(255,255,255,0.08);
         padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 25px;
+        border-radius: 12px;
+        font-size: clamp(26px, 7vw, 38px);
+        text-align: center;
+        margin: 0 0 20px 0;
+        font-weight: bold;
         width: 100%;
     }
 
-    /* السحور */
+    #hijriBox {
+        background: rgba(255,255,255,0.15);
+        padding: 20px;
+        border-radius: 12px;
+        margin-bottom: 25px;
+        text-align: center;
+        font-size: clamp(24px, 6vw, 34px);
+        line-height: 1.7;
+    }
+
     .suhur-box {
         background: white;
         color: #0044aa;
-        padding: 20px;
-        border-radius: 15px;
-        margin-bottom: 15px;
-        text-align: center;
-    }
-
-    /* الإفطار */
-    .iftar-box {
-        background: #aaffaa;
-        color: black;
         padding: 25px;
         border-radius: 15px;
         margin-bottom: 15px;
         text-align: center;
+        width: 100%;
+    }
+
+    .iftar-box {
+        background: #aaffaa;
+        color: black;
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 15px;
+        text-align: center;
+        width: 100%;
     }
 
     .big-time {
-        font-size: clamp(36px, 10vw, 65px);
+        font-size: clamp(40px, 11vw, 70px);
         font-weight: bold;
         margin-bottom: 10px;
     }
 
-    /* العداد */
     .countdown-box {
         background: red;
         color: white;
-        padding: 18px;
+        padding: 20px;
         border-radius: 15px;
         text-align: center;
-        font-size: clamp(26px, 7vw, 40px);
+        font-size: clamp(30px, 9vw, 45px);
         font-weight: bold;
         margin-bottom: 25px;
+        width: 100%;
     }
 
-    /* أوقات الصلاة */
+    .box {
+        background: rgba(255,255,255,0.08);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        width: 100%;
+    }
+
     .prayer {
-        font-size: clamp(26px, 7vw, 38px);
+        font-size: clamp(28px, 8vw, 40px);
         margin: 12px 0;
         display: flex;
         align-items: center;
-        gap: 10px;
-    }
-
-    .prayer span {
-        font-size: clamp(26px, 7vw, 38px);
+        gap: 12px;
     }
 
     button {
         width: 100%;
-        padding: 18px;
-        font-size: clamp(24px, 7vw, 36px);
+        padding: 20px;
+        font-size: clamp(26px, 8vw, 40px);
         border: none;
         border-radius: 12px;
         background: #00cc88;
@@ -131,6 +136,8 @@
 
 <div id="dua">اللهم وفق أمين الحديثي وارزقه وعافه واعفُ عنه</div>
 
+<div id="hijriBox">جاري تحميل التاريخ الهجري…</div>
+
 <div class="suhur-box">
     <div class="big-time" id="suhur">السحور: ...</div>
 </div>
@@ -142,7 +149,7 @@
 <div class="countdown-box" id="countdownIftar">...</div>
 
 <div class="box">
-    <h2 style="font-size: clamp(28px, 7vw, 40px); text-align:center;">أوقات الصلاة</h2>
+    <h2 style="font-size: clamp(30px, 8vw, 45px); text-align:center;">أوقات الصلاة</h2>
 
     <p class="prayer"><span>🕌</span> <span id="fajr"></span></p>
     <p class="prayer"><span>🕌</span> <span id="dhuhr"></span></p>
@@ -161,11 +168,34 @@
 function toArabic(time) {
     let [h, m] = time.split(":");
     h = parseInt(h);
-
     let suffix = h >= 12 ? "مساءً" : "صباحًا";
     h = (h % 12) || 12;
-
     return `${h}:${m} ${suffix}`;
+}
+
+function updateHijri() {
+    fetch("https://api.aladhan.com/v1/gToH")
+        .then(res => res.json())
+        .then(data => {
+            let hijri = data.data.hijri;
+            let day = parseInt(hijri.day);
+            let month = hijri.month.ar;
+            let year = hijri.year;
+
+            let totalDays = 30;
+            let remaining = totalDays - day;
+
+            let stage = "";
+            if (day <= 10) stage = "نحن الآن في العشرة الأولى";
+            else if (day <= 20) stage = "نحن الآن في العشرة الوسطى";
+            else stage = "نحن الآن في العشرة الأخيرة";
+
+            document.getElementById("hijriBox").innerHTML =
+                `اليوم ${day} من رمضان<br>` +
+                `التاريخ الهجري: ${day} ${month} ${year} هـ<br>` +
+                `باقي ${remaining} يوم على نهاية الشهر المبارك<br>` +
+                `${stage}`;
+        });
 }
 
 let audioEnabled = false;
@@ -186,11 +216,9 @@ function countdown(targetTime) {
     setInterval(() => {
         let now = new Date();
         let target = new Date(now.toDateString() + " " + targetTime);
-
         if (target < now) return;
 
         let diff = target - now;
-
         let h = Math.floor(diff / (1000 * 60 * 60));
         let m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         let s = Math.floor((diff % (1000 * 60)) / 1000);
@@ -251,6 +279,7 @@ navigator.geolocation.getCurrentPosition(
         let lon = pos.coords.longitude;
         loadPrayerTimes(lat, lon);
         getCityName(lat, lon);
+        updateHijri();
     },
     err => alert("يجب السماح بتحديد الموقع ليعمل التطبيق")
 );
