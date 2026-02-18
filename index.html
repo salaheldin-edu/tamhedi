@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>إمساكية رمضان الشاملة | أمين الحديثي</title>
+    <title>إمساكية رمضان | أمين الحديثي</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;800&family=Reem+Kufi:wght@700&family=Amiri+Quran&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -33,7 +33,6 @@
             padding: 15px 10px;
         }
 
-        /* زخرفة الخلفية */
         body::before {
             content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z' fill='%23d4af37' fill-opacity='0.03'/%3E%3C/svg%3E");
@@ -42,6 +41,7 @@
 
         .container { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; padding-bottom: 50px; }
 
+        header { position: relative; }
         h1 {
             font-family: 'Reem Kufi', sans-serif; font-size: 2rem; color: var(--accent-color);
             text-align: center; text-shadow: 0 4px 15px rgba(212, 175, 55, 0.3); margin-bottom: 5px;
@@ -52,14 +52,12 @@
             border-radius: 12px; padding: 8px; text-align: center; font-size: 0.9rem; color: #ffeba7;
         }
 
-        /* البطاقات الزجاجية */
         .glass-card {
             background: var(--glass-bg); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
             border: 1px solid var(--glass-border); border-radius: var(--card-radius); padding: 15px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
 
-        /* القوائم والأزرار */
         select, .action-btn {
             width: 100%; padding: 12px; font-family: 'Cairo', sans-serif; font-size: 1rem;
             background: rgba(0, 0, 0, 0.3); color: white; border: 1px solid var(--accent-color);
@@ -71,7 +69,6 @@
             display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 10px;
         }
 
-        /* العدادات الخاصة */
         .special-timers { display: flex; gap: 10px; }
         .timer-box-small {
             flex: 1; background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px; text-align: center;
@@ -80,28 +77,18 @@
         .timer-label { font-size: 0.8rem; color: var(--text-dim); }
         .timer-val { font-size: 1.4rem; font-weight: bold; color: var(--accent-color); direction: ltr; }
 
-        /* معلومات رمضان */
         .ramadan-info {
             display: flex; justify-content: space-between; align-items: center;
             font-size: 0.9rem; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px;
         }
         .info-tag { background: var(--accent-color); color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8rem; }
 
-        /* مواقيت الصلاة */
         .prayer-row {
             display: flex; justify-content: space-between; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         .prayer-row.active { background: rgba(212, 175, 55, 0.15); border-right: 3px solid var(--accent-color); }
         .prayer-time { font-weight: bold; color: var(--accent-color); }
 
-        /* المحتوى الإسلامي */
-        .islamic-content { text-align: center; line-height: 1.8; }
-        .quran-text { font-family: 'Amiri Quran', serif; font-size: 1.3rem; color: #ffeba7; margin: 10px 0; }
-        .hadith-text { font-style: italic; color: #e2e8f0; margin: 10px 0; }
-        .basmalah { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 5px; }
-        .sadaqallah { font-size: 0.9rem; color: var(--text-dim); margin-top: 5px; }
-
-        /* النوافذ المنبثقة Modal */
         .modal {
             display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
@@ -109,36 +96,36 @@
         }
         .modal-content {
             background: #1e293b; border: 2px solid var(--accent-color); border-radius: 20px;
-            padding: 20px; width: 90%; max-width: 400px; max-height: 80vh; overflow-y: auto; text-align: center;
+            padding: 20px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; text-align: center;
             position: relative;
         }
-        .close-btn {
-            position: absolute; top: 10px; left: 15px; font-size: 24px; color: #aaa; cursor: pointer;
-        }
+        .close-btn { position: absolute; top: 10px; left: 15px; font-size: 24px; color: #aaa; cursor: pointer; }
         .recipe-title { color: var(--accent-color); font-size: 1.4rem; margin-bottom: 10px; font-weight: bold; }
         .recipe-body { text-align: right; font-size: 0.95rem; line-height: 1.6; white-space: pre-line; }
 
-        /* القبلة */
         .qibla-compass {
             width: 150px; height: 150px; border: 4px solid var(--text-dim); border-radius: 50%;
             margin: 20px auto; position: relative; background: rgba(255,255,255,0.05);
         }
         .qibla-arrow {
             position: absolute; top: 50%; left: 50%; width: 4px; height: 70px;
-            background: red; transform-origin: bottom center;
-            transition: transform 1s ease-out;
-            margin-left: -2px; margin-top: -70px; /* لضبط المركز */
+            background: red; transform-origin: bottom center; transition: transform 1s ease-out;
+            margin-left: -2px; margin-top: -70px;
         }
         .qibla-arrow::after {
             content: ''; position: absolute; top: 0; left: -6px;
-            border-left: 8px solid transparent; border-right: 8px solid transparent;
-            border-bottom: 15px solid red;
+            border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 15px solid red;
         }
         .kaaba-icon { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 20px; }
 
-        /* شبكة الأزرار السفلية */
         .buttons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
         .secondary-btn { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
+        
+        .islamic-content { text-align: center; line-height: 1.8; margin-top: 10px; }
+        .quran-text { font-family: 'Amiri Quran', serif; font-size: 1.3rem; color: #ffeba7; margin: 10px 0; }
+        .hadith-text { font-style: italic; color: #e2e8f0; margin: 10px 0; }
+        .basmalah { font-size: 0.9rem; color: var(--text-dim); margin-bottom: 5px; }
+        .sadaqallah { font-size: 0.9rem; color: var(--text-dim); margin-top: 5px; }
     </style>
 </head>
 <body>
@@ -147,7 +134,7 @@
         
         <header>
             <h1>رمضان كريم</h1>
-            <div class="dua-header">اللهم وفق <strong>أمين الحديثي</strong>   وتقبل منه وارزقه ووالديه الجنة واحفظ له عائلته واولاده من كل شر وسوء </div>
+            <div class="dua-header">اللهم وفق <strong>أمين الحديثي</strong> وتقبل منه</div>
         </header>
 
         <div class="glass-card">
@@ -194,8 +181,7 @@
         </div>
 
         <div class="glass-card islamic-content">
-            <div id="randomContent">
-                </div>
+            <div id="randomContent"></div>
         </div>
 
     </div>
@@ -226,28 +212,30 @@
     <audio id="adhanAudio" src="https://media.blubrry.com/muslim_central_quran/podcasts.qurancentral.com/adhan/adhan-makkah-2.mp3"></audio>
 
 <script>
-    // ==========================================
-    // 1. البيانات (المدن، الوصفات، المحتوى الإسلامي)
-    // ==========================================
+    // 1. البيانات مع "التصحيح التلقائي" لكل محافظة (Offsets)
+    // التنسيق: { corrections: { Fajr, Dhuhr, Asr, Maghrib, Isha } } بالدقائق
     const cities = [
-        { name: "بغداد", lat: 33.3152, lng: 44.3661 },
-        { name: "أربيل", lat: 36.1901, lng: 44.0091 },
-        { name: "البصرة", lat: 30.5081, lng: 47.7835 },
-        { name: "الموصل", lat: 36.3400, lng: 43.1300 },
-        { name: "النجف", lat: 32.0000, lng: 44.3300 },
-        { name: "كربلاء", lat: 32.6160, lng: 44.0250 },
-        { name: "كركوك", lat: 35.4700, lng: 44.3900 },
-        { name: "الأنبار", lat: 33.4300, lng: 43.2900 },
-        { name: "صلاح الدين", lat: 34.6100, lng: 43.6800 },
-        { name: "ديالى", lat: 33.7400, lng: 44.6200 },
-        { name: "بابل", lat: 32.4800, lng: 44.4200 },
-        { name: "واسط", lat: 32.5100, lng: 45.8200 },
-        { name: "ميسان", lat: 31.8400, lng: 47.1400 },
-        { name: "ذي قار", lat: 31.0400, lng: 46.2500 },
-        { name: "المثنى", lat: 31.3200, lng: 45.2800 },
-        { name: "القادسية", lat: 31.9900, lng: 44.9300 },
-        { name: "السليمانية", lat: 35.5500, lng: 45.4500 },
-        { name: "دهوك", lat: 36.8600, lng: 42.9900 }
+        // أربيل: تم ضبطها بدقة لتطابق صورة الإمساكية (زيادة ونقصان الدقائق)
+        { name: "أربيل", lat: 36.1901, lng: 44.0091, corrections: { Fajr: 9, Dhuhr: 5, Asr: 0, Maghrib: 6, Isha: -10 } },
+        
+        // باقي المحافظات: تقديرات قياسية (يمكن تعديلها لو توفرت صور لها)
+        { name: "بغداد", lat: 33.3152, lng: 44.3661, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "البصرة", lat: 30.5081, lng: 47.7835, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "الموصل", lat: 36.3400, lng: 43.1300, corrections: { Fajr: 5, Dhuhr: 3, Asr: 0, Maghrib: 4, Isha: 0 } },
+        { name: "النجف", lat: 32.0000, lng: 44.3300, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 4, Isha: 0 } },
+        { name: "كربلاء", lat: 32.6160, lng: 44.0250, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 4, Isha: 0 } },
+        { name: "كركوك", lat: 35.4700, lng: 44.3900, corrections: { Fajr: 4, Dhuhr: 3, Asr: 0, Maghrib: 5, Isha: -5 } },
+        { name: "الأنبار", lat: 33.4300, lng: 43.2900, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "صلاح الدين", lat: 34.6100, lng: 43.6800, corrections: { Fajr: 3, Dhuhr: 2, Asr: 0, Maghrib: 4, Isha: 0 } },
+        { name: "ديالى", lat: 33.7400, lng: 44.6200, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "بابل", lat: 32.4800, lng: 44.4200, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "واسط", lat: 32.5100, lng: 45.8200, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "ميسان", lat: 31.8400, lng: 47.1400, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "ذي قار", lat: 31.0400, lng: 46.2500, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "المثنى", lat: 31.3200, lng: 45.2800, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "القادسية", lat: 31.9900, lng: 44.9300, corrections: { Fajr: 2, Dhuhr: 2, Asr: 0, Maghrib: 3, Isha: 0 } },
+        { name: "السليمانية", lat: 35.5500, lng: 45.4500, corrections: { Fajr: 8, Dhuhr: 5, Asr: 0, Maghrib: 6, Isha: -10 } }, // تشبه أربيل غالباً
+        { name: "دهوك", lat: 36.8600, lng: 42.9900, corrections: { Fajr: 9, Dhuhr: 5, Asr: 0, Maghrib: 6, Isha: -10 } }  // تشبه أربيل غالباً
     ];
 
     const islamicData = {
@@ -279,14 +267,11 @@
         { type: "إفطار شرقي", title: "دولمة عراقية", body: "1. حفر الخضار (بصل، باذنجان، كوسا).\n2. الحشو: رز، لحم مفروم، شبنت، دبس رمان.\n3. الطبخ على نار هادئة مع إضافة الماء والليمون." }
     ];
 
-    // ==========================================
-    // 2. تهيئة التطبيق
-    // ==========================================
     const citySelect = document.getElementById('citySelect');
-    let prayerTimes = null;
+    let prayerTimesRaw = null;
+    let prayerTimesAdjusted = null;
     let hijriData = null;
 
-    // ملء القائمة
     cities.forEach(city => {
         const option = document.createElement('option');
         option.value = JSON.stringify(city);
@@ -294,15 +279,13 @@
         citySelect.appendChild(option);
     });
 
-    // تحميل المحافظة المحفوظة
     window.onload = function() {
         const savedCity = localStorage.getItem('savedCityIndex');
         if (savedCity) {
-            citySelect.selectedIndex = parseInt(savedCity) + 1; // +1 لأن الخيار الأول disabled
+            citySelect.selectedIndex = parseInt(savedCity) + 1;
             handleCityChange();
         } else {
-            // اختيار افتراضي (بغداد)
-            citySelect.selectedIndex = 1;
+            citySelect.selectedIndex = 1; // Default
             handleCityChange();
         }
         generateRandomIslamicContent();
@@ -314,9 +297,6 @@
         fetchData();
     }
 
-    // ==========================================
-    // 3. جلب البيانات والحسابات
-    // ==========================================
     async function fetchData() {
         const cityData = JSON.parse(citySelect.value);
         const date = new Date();
@@ -331,38 +311,51 @@
             const data = await res.json();
             
             if(data.code === 200) {
-                prayerTimes = data.data.timings;
+                prayerTimesRaw = data.data.timings;
                 hijriData = data.data.date.hijri;
+                applyAutoCorrections(cityData.corrections);
                 updateUI();
             }
         } catch (e) {
-            alert("يرجى التحقق من الانترنت");
+            document.getElementById('prayersList').innerText = "فشل التحميل، تأكد من النت";
         }
     }
 
+    function applyAutoCorrections(corrections) {
+        prayerTimesAdjusted = { ...prayerTimesRaw };
+        if(corrections) {
+            for (let key in corrections) {
+                if (prayerTimesAdjusted[key]) {
+                    prayerTimesAdjusted[key] = addMinutes(prayerTimesAdjusted[key], corrections[key]);
+                }
+            }
+        }
+    }
+
+    function addMinutes(timeStr, minutes) {
+        let [h, m] = timeStr.split(':').map(Number);
+        let date = new Date();
+        date.setHours(h, m, 0);
+        date.setMinutes(date.getMinutes() + parseInt(minutes));
+        return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+    }
+
     function updateUI() {
-        // 1. تحديث معلومات رمضان
         const day = parseInt(hijriData.day);
         document.getElementById('hijriDay').innerText = day;
         
-        // تحديد العشرة
         let ashraText = "";
         let ashraColor = "#d4af37";
         if (day <= 10) { ashraText = "العشرة الأولى (رحمة)"; ashraColor = "#4ade80"; }
         else if (day <= 20) { ashraText = "العشرة الوسطى (مغفرة)"; ashraColor = "#60a5fa"; }
-        else { ashraText = "العشرة الأخيرة (عتق من النار)"; ashraColor = "#f472b6"; }
+        else { ashraText = "العشرة الأخيرة (عتق)"; ashraColor = "#f472b6"; }
         
         const tag = document.getElementById('ashraTag');
         tag.innerText = ashraText;
         tag.style.backgroundColor = ashraColor;
-
-        // باقي للعيد
         document.getElementById('eidCountdown').innerText = (30 - day);
 
-        // 2. تحديث قائمة الصلوات
         renderPrayers();
-
-        // 3. بدء العدادات
         startTimers();
     }
 
@@ -375,46 +368,45 @@
             const div = document.createElement('div');
             div.className = 'prayer-row';
             div.id = `row-${key}`;
-            div.innerHTML = `<div>${names[key]}</div><div class="prayer-time">${formatTime(prayerTimes[key])}</div>`;
+            
+            div.innerHTML = `
+                <div>${names[key]}</div>
+                <div class="prayer-time">${formatTime(prayerTimesAdjusted[key])}</div>
+            `;
             container.appendChild(div);
         }
     }
 
+    let intervalId;
     function startTimers() {
-        setInterval(() => {
+        if(intervalId) clearInterval(intervalId);
+        
+        intervalId = setInterval(() => {
             const now = new Date();
             
-            // 1. عداد المغرب (الإفطار)
-            const iftarTime = getTodayTime(prayerTimes.Maghrib);
-            updateTimerBox('iftarCountdown', iftarTime, now, "حان وقت الإفطار!");
+            const iftarTime = getTodayTime(prayerTimesAdjusted.Maghrib);
+            updateTimerBox('iftarCountdown', iftarTime, now);
 
-            // 2. عداد الفجر (السحور) - الفجر غداً
-            const fajrTime = getTodayTime(prayerTimes.Fajr);
-            if (fajrTime < now) fajrTime.setDate(fajrTime.getDate() + 1); // فجر الغد
-            updateTimerBox('suhurCountdown', fajrTime, now, "أمسك عن الطعام!");
+            const fajrTime = getTodayTime(prayerTimesAdjusted.Fajr);
+            if (fajrTime < now) fajrTime.setDate(fajrTime.getDate() + 1);
+            updateTimerBox('suhurCountdown', fajrTime, now);
 
-            // 3. الصلاة القادمة والعداد الرئيسي
             updateMainCountdown(now);
 
         }, 1000);
     }
 
-    function updateTimerBox(elementId, targetTime, now, doneMsg) {
+    function updateTimerBox(elementId, targetTime, now) {
         let diff = targetTime - now;
         const el = document.getElementById(elementId);
         
-        // إذا كان الفرق سلبياً (أي الوقت مر للتو) ولكن في حدود ساعة، نعتبره قد حان
         if (diff < 0 && diff > -3600000) { 
-             el.innerText = "00:00:00";
-             el.style.color = "red";
-             return;
+             el.innerText = "00:00:00"; el.style.color = "red"; return;
         }
-        // إذا الفرق سلبي كبير، يعني الوقت القادم هو غداً (للمغرب مثلاً)
         if (diff < 0) {
             targetTime.setDate(targetTime.getDate() + 1);
             diff = targetTime - now;
         }
-
         el.innerText = msToTime(diff);
         el.style.color = "var(--accent-color)";
     }
@@ -426,20 +418,17 @@
         const namesAr = { Fajr:'الفجر', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء' };
 
         for(let p of prayers) {
-            let t = getTodayTime(prayerTimes[p]);
+            let t = getTodayTime(prayerTimesAdjusted[p]);
             if(t > now) {
-                nextPrayer = t;
-                nextName = namesAr[p];
-                // تمييز الصف
+                nextPrayer = t; nextName = namesAr[p];
                 document.querySelectorAll('.prayer-row').forEach(r => r.classList.remove('active'));
                 document.getElementById(`row-${p}`).classList.add('active');
                 break;
             }
         }
 
-        // إذا انتهت صلوات اليوم، القادمة هي الفجر غداً
         if(!nextPrayer) {
-            nextPrayer = getTodayTime(prayerTimes.Fajr);
+            nextPrayer = getTodayTime(prayerTimesAdjusted.Fajr);
             nextPrayer.setDate(nextPrayer.getDate() + 1);
             nextName = "الفجر";
             document.querySelectorAll('.prayer-row').forEach(r => r.classList.remove('active'));
@@ -450,59 +439,18 @@
         document.getElementById('mainCountdown').innerText = msToTime(nextPrayer - now);
     }
 
-    // ==========================================
-    // 4. المحتوى العشوائي والخدمات
-    // ==========================================
-    function generateRandomIslamicContent() {
-        const container = document.getElementById('randomContent');
-        const rand = Math.random();
-        
-        let html = '';
-        if(rand < 0.4) { // 40% قرآن
-            const item = islamicData.quran[Math.floor(Math.random() * islamicData.quran.length)];
-            html = `
-                <div class="basmalah">بسم الله الرحمن الرحيم</div>
-                <div class="quran-text">"${item.text}"</div>
-                <div class="sadaqallah">صدق الله العظيم - ${item.surah}</div>
-            `;
-        } else if (rand < 0.7) { // 30% حديث
-            const item = islamicData.hadith[Math.floor(Math.random() * islamicData.hadith.length)];
-            html = `
-                <div class="basmalah">قال رسول الله ﷺ:</div>
-                <div class="hadith-text">"${item.text}"</div>
-                <div class="sadaqallah">صدق رسول الله - ${item.narrator}</div>
-            `;
-        } else { // 30% ذكر
-            const item = islamicData.adhkar[Math.floor(Math.random() * islamicData.adhkar.length)];
-            html = `<div class="quran-text" style="font-size:1.1rem">"${item}"</div>`;
-        }
-        container.innerHTML = html;
-    }
-
-    function showRandomRecipe() {
-        const r = recipes[Math.floor(Math.random() * recipes.length)];
-        document.getElementById('modalRecipeTitle').innerText = r.title;
-        document.getElementById('modalRecipeType').innerText = r.type;
-        document.getElementById('modalRecipeBody').innerText = r.body;
-    }
-
-    // ==========================================
-    // 5. أدوات مساعدة
-    // ==========================================
     function getTodayTime(timeStr) {
         const d = new Date();
         const [h, m] = timeStr.split(':');
         d.setHours(h, m, 0, 0);
         return d;
     }
-
     function msToTime(duration) {
         let seconds = Math.floor((duration / 1000) % 60);
         let minutes = Math.floor((duration / (1000 * 60)) % 60);
         let hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
         return `${hours.toString().padStart(2,"0")}:${minutes.toString().padStart(2,"0")}:${seconds.toString().padStart(2,"0")}`;
     }
-
     function formatTime(t) {
         let [h, m] = t.split(':');
         h = parseInt(h);
@@ -510,43 +458,47 @@
         h = h % 12 || 12;
         return `${h}:${m} ${suffix}`;
     }
+    function generateRandomIslamicContent() {
+        const container = document.getElementById('randomContent');
+        const rand = Math.random();
+        let html = '';
+        if(rand < 0.4) {
+            const item = islamicData.quran[Math.floor(Math.random() * islamicData.quran.length)];
+            html = `<div class="basmalah">بسم الله الرحمن الرحيم</div><div class="quran-text">"${item.text}"</div><div class="sadaqallah">صدق الله العظيم - ${item.surah}</div>`;
+        } else if (rand < 0.7) {
+            const item = islamicData.hadith[Math.floor(Math.random() * islamicData.hadith.length)];
+            html = `<div class="basmalah">قال رسول الله ﷺ:</div><div class="hadith-text">"${item.text}"</div><div class="sadaqallah">صدق رسول الله - ${item.narrator}</div>`;
+        } else {
+            const item = islamicData.adhkar[Math.floor(Math.random() * islamicData.adhkar.length)];
+            html = `<div class="quran-text" style="font-size:1.1rem">"${item}"</div>`;
+        }
+        container.innerHTML = html;
+    }
+    
+    function showRandomRecipe() {
+        const r = recipes[Math.floor(Math.random() * recipes.length)];
+        document.getElementById('modalRecipeTitle').innerText = r.title;
+        document.getElementById('modalRecipeType').innerText = r.type;
+        document.getElementById('modalRecipeBody').innerText = r.body;
+    }
 
-    // إدارة النوافذ
     function openRecipeModal() { showRandomRecipe(); document.getElementById('recipeModal').style.display = 'flex'; }
     function openQiblaModal() { updateQibla(); document.getElementById('qiblaModal').style.display = 'flex'; }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-    
-    // إغلاق النافذة عند النقر خارجها
-    window.onclick = function(event) {
-        if (event.target.classList.contains('modal')) {
-            event.target.style.display = "none";
-        }
-    }
+    window.onclick = function(ev) { if (ev.target.classList.contains('modal')) ev.target.style.display = "none"; }
 
-    // ==========================================
-    // 6. منطق القبلة
-    // ==========================================
     function updateQibla() {
         const cityData = JSON.parse(citySelect.value);
-        // إحداثيات مكة
-        const kaabaLat = 21.4225;
-        const kaabaLng = 39.8262;
-
-        const phiK = kaabaLat * Math.PI / 180.0;
-        const lambdaK = kaabaLng * Math.PI / 180.0;
-        const phi = cityData.lat * Math.PI / 180.0;
-        const lambda = cityData.lng * Math.PI / 180.0;
-
+        const kaabaLat = 21.4225, kaabaLng = 39.8262;
+        const phiK = kaabaLat * Math.PI/180.0, lambdaK = kaabaLng * Math.PI/180.0;
+        const phi = cityData.lat * Math.PI/180.0, lambda = cityData.lng * Math.PI/180.0;
         const y = Math.sin(lambdaK - lambda);
         const x = Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda);
-        let qiblaDir = Math.atan2(y, x) * 180.0 / Math.PI;
-        qiblaDir = (qiblaDir + 360) % 360; // الاتجاه بالنسبة للشمال الجغرافي
-
-        document.getElementById('qiblaDegreeText').innerText = `انحراف ${Math.round(qiblaDir)}° عن الشمال`;
-        document.getElementById('compassArrow').style.transform = `rotate(${qiblaDir}deg)`;
+        let dir = Math.atan2(y, x) * 180.0/Math.PI;
+        dir = (dir + 360) % 360;
+        document.getElementById('qiblaDegreeText').innerText = `انحراف ${Math.round(dir)}° عن الشمال`;
+        document.getElementById('compassArrow').style.transform = `rotate(${dir}deg)`;
     }
-
 </script>
 </body>
 </html>
-
