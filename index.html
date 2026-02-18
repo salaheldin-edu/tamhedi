@@ -5,102 +5,102 @@
 <title>إمساكية رمضان</title>
 
 <style>
-    body {
+    * {
         margin: 0;
         padding: 0;
-        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    body {
         font-family: "Cairo", sans-serif;
         color: white;
+        overflow-y: auto;
         height: 100vh;
         width: 100vw;
     }
 
-    /* خلفية كاملة + حركة مع الموبايل */
+    /* الخلفية */
     #bg {
         position: fixed;
         top: 0;
         left: 0;
-        width: 110vw;
-        height: 110vh;
+        width: 100vw;
+        height: 100vh;
         background-image: url('https://i.imgur.com/0kq4kQF.jpeg');
         background-size: cover;
         background-position: center;
-        transition: transform 0.1s linear;
         z-index: -1;
-        filter: brightness(0.75);
+        filter: brightness(0.7);
+        transition: transform 0.1s linear;
     }
 
     /* المحتوى */
     #content {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        padding: 25px;
-        box-sizing: border-box;
-        text-align: center;
+        padding: 20px;
+        width: calc(100% - 20px);
+        margin: auto;
+        max-width: 600px;
     }
 
     h1 {
-        font-size: 40px;
-        margin-top: 5px;
-        color: #ffd700;
+        font-size: 42px;
         text-shadow: 0 0 12px #000;
+        margin-bottom: 10px;
     }
 
     #cityName {
         font-size: 28px;
         margin-bottom: 10px;
-        color: #ffdd88;
         text-shadow: 0 0 10px #000;
     }
 
     #dua {
         font-size: 24px;
         margin-bottom: 20px;
-        color: #cceeff;
         text-shadow: 0 0 8px #000;
     }
 
     .box {
         background: rgba(0,0,0,0.55);
         padding: 25px;
-        border-radius: 20px;
-        margin-top: 20px;
+        border-radius: 18px;
+        margin-bottom: 25px;
         backdrop-filter: blur(4px);
     }
 
     .big-time {
-        font-size: 55px;
+        font-size: 58px;
         font-weight: bold;
-        margin: 10px 0;
+        margin-bottom: 10px;
         color: #00ffcc;
         text-shadow: 0 0 15px #000;
     }
 
     .countdown {
-        font-size: 30px;
+        font-size: 32px;
         color: #ffddaa;
         margin-bottom: 20px;
         text-shadow: 0 0 12px #000;
+        font-weight: bold;
     }
 
     .prayer {
         font-size: 30px;
-        margin: 8px 0;
+        margin: 10px 0;
         text-shadow: 0 0 10px #000;
     }
 
     button {
-        margin-top: 25px;
-        padding: 15px 25px;
-        font-size: 24px;
+        width: 100%;
+        padding: 18px;
+        font-size: 26px;
         border: none;
         border-radius: 12px;
         background: #00cc88;
         color: black;
-        cursor: pointer;
         font-weight: bold;
         box-shadow: 0 0 12px #000;
+        margin-bottom: 40px;
     }
 </style>
 </head>
@@ -125,7 +125,7 @@
 </div>
 
 <div class="box">
-    <h2 style="font-size:32px; text-shadow:0 0 10px #000;">أوقات الصلاة</h2>
+    <h2 style="font-size:34px; text-shadow:0 0 10px #000;">أوقات الصلاة</h2>
     <p class="prayer" id="fajr"></p>
     <p class="prayer" id="dhuhr"></p>
     <p class="prayer" id="asr"></p>
@@ -140,16 +140,16 @@
 </div>
 
 <script>
-/* حركة الخلفية مع الموبايل */
+/* حركة الخلفية */
 window.addEventListener("deviceorientation", function(event) {
     let x = event.gamma;
     let y = event.beta;
 
-    let moveX = (x / 45) * 5;
-    let moveY = (y / 45) * 5;
+    let moveX = (x / 45) * 3;
+    let moveY = (y / 45) * 3;
 
     document.getElementById("bg").style.transform =
-        `translate(${moveX}%, ${moveY}%) scale(1.1)`;
+        `translate(${moveX}%, ${moveY}%) scale(1.05)`;
 });
 
 /* تحويل الوقت إلى صباحًا / مساءً */
@@ -191,7 +191,7 @@ function countdown(targetTime, elementId) {
         let s = Math.floor((diff % (1000 * 60)) / 1000);
 
         document.getElementById(elementId).innerHTML =
-            `متبقّي: ${h} ساعة ${m} دقيقة ${s} ثانية`;
+            `${h} ساعة ${m} دقيقة ${s} ثانية`;
 
         if (diff < 1000) playAdhan();
     }, 1000);
