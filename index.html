@@ -4,7 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>إمساكية رمضان (المعدلة)</title>
-    
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Reem+Kufi:wght@700&family=Amiri+Quran&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -17,12 +21,12 @@
             color: white; min-height: 100vh; display: flex; justify-content: center; padding: 15px 10px;
         }
         .container { width: 100%; max-width: 450px; display: flex; flex-direction: column; gap: 12px; }
-        
+
         h1 { font-family: 'Reem Kufi'; color: var(--gold); text-align: center; text-shadow: 0 4px 15px rgba(212,175,55,0.3); margin-bottom: 5px; }
         .card { background: var(--glass); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.15); border-radius: 16px; padding: 15px; }
-        
+
         select { width: 100%; padding: 12px; background: rgba(0,0,0,0.3); color: white; border: 1px solid var(--gold); border-radius: 10px; text-align: center; font-size: 1rem; }
-        
+
         .timer-grid { display: flex; gap: 10px; }
         .t-box { flex: 1; background: rgba(0,0,0,0.3); border-radius: 12px; padding: 10px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
         .t-num { font-size: 1.4rem; font-weight: bold; color: var(--gold); direction: ltr; }
@@ -36,14 +40,14 @@
         .time-val { font-weight: bold; color: var(--gold); font-size: 1.1rem; }
 
         .info-badge { background: var(--gold); color: black; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 0.85rem; display: inline-block; }
-        
+
         .quran-box {
-            background: rgba(74, 222, 128, 0.1); border: 1px solid #4ade80; 
+            background: rgba(74, 222, 128, 0.1); border: 1px solid #4ade80;
             text-align: center; padding: 10px; border-radius: 12px; margin-top: 5px;
         }
 
-        .btn-g { background: var(--gold); color: black; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; display: flex; justify-content: center; gap: 8px; }
-        
+        .btn-g { background: var(--gold); color: black; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; display: flex; justify-content: center; gap: 8px; align-items:center; }
+
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
         .m-content { background: #1e293b; border: 1px solid var(--gold); width: 90%; max-width: 400px; padding: 20px; border-radius: 20px; text-align: center; position: relative; }
     </style>
@@ -64,6 +68,16 @@
             <option value="1">كركوك</option>
             <option value="2">تكريت</option>
         </select>
+    </div>
+
+    <!-- ✅ زر تفعيل التنبيهات -->
+    <div class="card" style="text-align:center">
+        <button class="btn-g" onclick="enableAdhanAlerts()">🔔 تفعيل تنبيهات الأذان</button>
+        <div id="notifStatus" style="margin-top:8px;color:#aaa;font-size:0.9rem"></div>
+        <div style="margin-top:6px;color:#aab;font-size:0.85rem;line-height:1.6">
+            • يصلك تنبيه عند كل أذان<br>
+            • ويصلك تنبيه <strong>إمساك</strong> قبل الفجر بـ <strong>5 دقائق</strong>
+        </div>
     </div>
 
     <div class="card" style="text-align:center">
@@ -103,7 +117,7 @@
         <button class="btn-g" onclick="openM('recipeM'); randomRec()">🍴 اقترح إفطار</button>
         <button class="btn-g" style="background:transparent; border:1px solid var(--gold); color:var(--gold)" onclick="openM('qiblaM')">🕋 القبلة</button>
     </div>
-    
+
 </div>
 
 <div id="recipeM" class="modal"><div class="m-content">
@@ -126,22 +140,22 @@
     // ==========================================
     // 1. البيانات الأساسية (نقطة الانطلاق: 18 شباط 2026)
     // ==========================================
-    const START_DATE = new Date("2026-02-18T00:00:00"); 
-    
+    const START_DATE = new Date("2026-02-18T00:00:00");
+
     // تعريف توقيت اليوم الأول لكل محافظة حسب طلبك الدقيق
     const CITIES_DATA = [
-        { 
-            name: "أربيل", 
+        {
+            name: "أربيل",
             // أربيل كما هي
             base: { Fajr: "05:27", Dhuhr: "12:26", Asr: "15:24", Maghrib: "17:53", Isha: "19:08" }
         },
-        { 
-            name: "كركوك", 
+        {
+            name: "كركوك",
             // الظهر 12:21، العصر 3:25، المغرب والعشاء مثل أربيل، الفجر 5:21
             base: { Fajr: "05:21", Dhuhr: "12:21", Asr: "15:25", Maghrib: "17:53", Isha: "19:08" }
         },
-        { 
-            name: "تكريت", 
+        {
+            name: "تكريت",
             // الفجر 5:23، الظهر 12:23، العصر 3:29، المغرب 5:55، العشاء 7:11 (19:11)
             base: { Fajr: "05:23", Dhuhr: "12:23", Asr: "15:29", Maghrib: "17:55", Isha: "19:11" }
         }
@@ -155,14 +169,14 @@
     function calculateTimes() {
         const cityIdx = document.getElementById('citySelect').value;
         const cityBase = CITIES_DATA[cityIdx].base;
-        
+
         const now = new Date();
-        const diffTime = now - START_DATE; 
+        const diffTime = now - START_DATE;
         let daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        
+
         // منع الأرقام السالبة قبل رمضان
-        if(daysPassed < 0) daysPassed = 0; 
-        
+        if(daysPassed < 0) daysPassed = 0;
+
         // رقم اليوم الحالي (1، 2، 3...)
         const currentRamadanDay = daysPassed + 1;
 
@@ -170,10 +184,9 @@
         // الفجر: -1 دقيقة يومياً
         // الظهر: ثابت
         // العصر، المغرب، العشاء: +1 دقيقة يومياً
-        
         currentTimes = {
             Fajr: addMinutes(cityBase.Fajr, -1 * daysPassed),
-            Dhuhr: cityBase.Dhuhr, 
+            Dhuhr: cityBase.Dhuhr,
             Asr: addMinutes(cityBase.Asr, 1 * daysPassed),
             Maghrib: addMinutes(cityBase.Maghrib, 1 * daysPassed),
             Isha: addMinutes(cityBase.Isha, 1 * daysPassed)
@@ -182,26 +195,30 @@
         // تحديث النصوص
         document.getElementById('ramadanDay').innerText = currentRamadanDay + " رمضان";
         document.getElementById('dateDisplay').innerText = now.toLocaleDateString('ar-IQ');
-        
+
         // تحديث العشرة
         let ashra = "";
         let ashraColor = "";
         if(currentRamadanDay <= 10) { ashra = "🌙 العشرة الأولى (أيام الرحمة)"; ashraColor = "#4ade80"; }
         else if(currentRamadanDay <= 20) { ashra = "✨ العشرة الوسطى (أيام المغفرة)"; ashraColor = "#60a5fa"; }
         else { ashra = "🔥 العشرة الأواخر (العتق من النار)"; ashraColor = "#f472b6"; }
-        
+
         const ashraEl = document.getElementById('ashraText');
         ashraEl.innerText = ashra;
         ashraEl.style.color = ashraColor;
 
         // تحديث ورد القرآن
-        // لختم القرآن: رقم الجزء يساوي رقم اليوم
-        // إذا زاد عن 30 يبقى 30
         let juz = currentRamadanDay;
         if(juz > 30) juz = 30;
         document.getElementById('quranJuz').innerText = "الجزء " + toArabicNum(juz);
 
         renderTable();
+    }
+
+    // كانت عندك onchange="updateCalculations()" بس ماكو دالة—نخليها تربط للحساب
+    function updateCalculations() {
+        calculateTimes();
+        updateTimers();
     }
 
     function addMinutes(timeStr, minsToAdd) {
@@ -210,7 +227,7 @@
         date.setHours(h, m + minsToAdd, 0);
         return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
     }
-    
+
     function toArabicNum(n) {
         const ar = ["الأول", "الثاني", "الثالث", "الرابع", "الخامس", "السادس", "السابع", "الثامن", "التاسع", "العاشر",
                     "الحادي عشر", "الثاني عشر", "الثالث عشر", "الرابع عشر", "الخامس عشر", "السادس عشر", "السابع عشر", "الثامن عشر", "التاسع عشر", "العشرون",
@@ -240,7 +257,7 @@
 
     function updateTimers() {
         if(!currentTimes.Fajr) return;
-        
+
         const now = new Date();
         let timesObj = {};
         for(let k in currentTimes) {
@@ -252,7 +269,7 @@
         let nextP = null;
         let nextN = "";
         let labels = { Fajr:'الفجر', Dhuhr:'الظهر', Asr:'العصر', Maghrib:'المغرب', Isha:'العشاء' };
-        
+
         for(let k in timesObj) {
             if(timesObj[k] > now) {
                 nextP = timesObj[k];
@@ -284,7 +301,7 @@
     }
 
     function pad(n) { return n<10 ? '0'+n : n; }
-    
+
     function format12(time24) {
         let [h, m] = time24.split(':');
         h = parseInt(h);
@@ -314,14 +331,123 @@
     function openM(id) { document.getElementById(id).style.display = 'flex'; }
     function closeM(id) { document.getElementById(id).style.display = 'none'; }
 
+    // ==========================================
+    // 4. تنبيهات الأذان + الإمساك قبل الفجر بـ 5 دقائق
+    // ==========================================
+    let lastTriggeredKey = ""; // لمنع تكرار التنبيه كل ثانية
+
+    async function enableAdhanAlerts() {
+        // سجّل Service Worker (مهم لبعض الأجهزة ولـ PWA)
+        if ("serviceWorker" in navigator) {
+            try { await navigator.serviceWorker.register("sw.js"); } catch(e) {}
+        }
+
+        if (!("Notification" in window)) {
+            document.getElementById("notifStatus").innerText = "التنبيهات غير مدعومة بجهازك.";
+            return;
+        }
+
+        const perm = await Notification.requestPermission();
+        if (perm === "granted") {
+            document.getElementById("notifStatus").innerText = "تم تفعيل التنبيهات ✅";
+            showNotif("✅ تم التفعيل", "راح توصلك تنبيهات وقت الأذان + تنبيه إمساك قبل الفجر بـ 5 دقائق");
+        } else {
+            document.getElementById("notifStatus").innerText = "لازم توافق على الإشعارات حتى تشتغل.";
+        }
+    }
+
+    function showNotif(title, body) {
+        // إشعار مباشر
+        try {
+            new Notification(title, { body, icon: "logo.png" });
+        } catch (e) {
+            // fallback للـ service worker
+            if (navigator.serviceWorker?.controller) {
+                navigator.serviceWorker.controller.postMessage({ title, body });
+            }
+        }
+
+        // اهتزاز (إن توفر)
+        if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
+    }
+
+    function timeToDateToday(hhmm) {
+        const [h, m] = hhmm.split(":").map(Number);
+        const d = new Date();
+        d.setHours(h, m, 0, 0);
+        return d;
+    }
+
+    function sameMinute(now, targetDate) {
+        return now.getHours() === targetDate.getHours() && now.getMinutes() === targetDate.getMinutes();
+    }
+
+    function fireOnce(uniqueId, nowKey, title, body) {
+        const key = uniqueId + "@" + nowKey;
+        if (lastTriggeredKey === key) return;
+        lastTriggeredKey = key;
+
+        showNotif(title, body);
+
+        // ✅ اختياري: إذا عندك ملف adhan.mp3 بالمجلد، فك التعليق:
+        // const audio = new Audio("adhan.mp3");
+        // audio.play().catch(()=>{});
+    }
+
+    function checkAdhanAlerts() {
+        if (!currentTimes?.Fajr) return;
+        if (Notification.permission !== "granted") return;
+
+        const now = new Date();
+        const nowKey = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+        // أوقات اليوم
+        let fajr = timeToDateToday(currentTimes.Fajr);
+        let dhuhr = timeToDateToday(currentTimes.Dhuhr);
+        let asr = timeToDateToday(currentTimes.Asr);
+        let maghrib = timeToDateToday(currentTimes.Maghrib);
+        let isha = timeToDateToday(currentTimes.Isha);
+
+        // إمساك: قبل الفجر بـ 5 دقائق
+        let imsak = new Date(fajr.getTime() - 5 * 60000);
+
+        // لو المستخدم فاتح الصفحة بالليل بعد منتصف الليل وصار الفجر "قبل الآن" نعتبره للغد
+        if (fajr < now && now.getHours() > 12) {
+            fajr.setDate(fajr.getDate() + 1);
+            imsak.setDate(imsak.getDate() + 1);
+        }
+
+        // 1) تنبيه الإمساك
+        if (sameMinute(now, imsak)) {
+            fireOnce("IMSAK", nowKey, "⏳ وقت الإمساك", `باقي 5 دقائق على أذان الفجر (${format12(currentTimes.Fajr)})`);
+        }
+
+        // 2) تنبيهات الأذان
+        if (sameMinute(now, fajr))    fireOnce("FAJR", nowKey, "🕌 حان الآن أذان الفجر",   `الوقت: ${format12(currentTimes.Fajr)}`);
+        if (sameMinute(now, dhuhr))   fireOnce("DHUHR", nowKey,"🕌 حان الآن أذان الظهر",  `الوقت: ${format12(currentTimes.Dhuhr)}`);
+        if (sameMinute(now, asr))     fireOnce("ASR", nowKey,  "🕌 حان الآن أذان العصر",  `الوقت: ${format12(currentTimes.Asr)}`);
+        if (sameMinute(now, maghrib)) fireOnce("MAGHRIB", nowKey,"🕌 حان الآن أذان المغرب",`الوقت: ${format12(currentTimes.Maghrib)}`);
+        if (sameMinute(now, isha))    fireOnce("ISHA", nowKey, "🕌 حان الآن أذان العشاء", `الوقت: ${format12(currentTimes.Isha)}`);
+    }
+
+    // ==========================================
+    // تشغيل الصفحة
+    // ==========================================
     window.onload = function() {
+        // تسجيل SW تلقائياً (حتى لو ما فعل التنبيهات بعد)
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register("sw.js").catch(()=>{});
+        }
+
         setInterval(() => {
             calculateTimes();
             updateTimers();
+            checkAdhanAlerts(); // ✅ فحص التنبيهات
         }, 1000);
-        calculateTimes();
-    };
 
+        calculateTimes();
+        updateTimers();
+    };
 </script>
 </body>
 </html>
